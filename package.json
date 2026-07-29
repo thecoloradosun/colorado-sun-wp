@@ -1,8 +1,8 @@
 {
-	"name": "publisher-name",
+	"name": "colorado-sun",
 	"version": "1.0.0",
 	"description": "A starting point for custom plugins on the Newspack platform",
-	"author": "Publisher name",
+	"author": "Colorado Sun",
 	"license": "GPL-2.0-or-later",
 	"main": "build/index.js",
 	"scripts": {

@@ -2,10 +2,10 @@
 /**
  * Module Loader
  *
- * @package PublisherName
+ * @package ColoradoSun
  */
 
-namespace PublisherName;
+namespace ColoradoSun;
 
 defined( 'ABSPATH' ) || exit;
 

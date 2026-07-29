@@ -2,10 +2,10 @@
 /**
  * Admin Panel Notice.
  *
- * @package PublisherName
+ * @package ColoradoSun
  */
 
-namespace PublisherName\Modules\Sample;
+namespace ColoradoSun\Modules\Sample;
 
 defined( 'ABSPATH' ) || exit;
 
