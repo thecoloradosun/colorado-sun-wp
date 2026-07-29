@@ -1,15 +1,19 @@
 # Getting Started — Colorado Sun WordPress Plugin
 
-Welcome! This guide gets **both developers** set up from zero on macOS. It assumes
-you have used GitHub only in rudimentary ways and that you have **never cloned a
-repository before**. Every action is numbered, shows the exact command, and tells
-you **what success looks like**.
+Welcome, Kevin! This guide gets you set up from zero on macOS. It assumes you have
+used GitHub only in rudimentary ways and have **never cloned a repository before**.
+
+**The twist that makes this easy:** instead of memorizing terminal commands, you'll
+let **GitHub Copilot Chat in VS Code (Agent mode)** do the installing for you. For
+each step you'll **paste a ready-made prompt**, the agent proposes the commands,
+and you click **Continue** to let it run and verify them. Every step still shows
+the exact commands (in a *Manual fallback*) so you always know what's happening.
 
 > **Important:** The repository **already exists** on GitHub at
-> `thecoloradosun/colorado-sun-wp`, created from the Newspack starter template.
-> Install and verify the tools in [Section 2](#2-macos-environment-setup), then
-> clone it in [Section 2.8](#28-clone-the-repository). Some later setup (automated
-> deploys) is still being configured, but everything in this guide works today.
+> `thecoloradosun/colorado-sun-wp`, created from the Newspack starter template, and
+> you've been added as a **collaborator** (accept the email invite first — see
+> [Section 0](#0-before-you-start)). Some later setup (automated deploys) is still
+> being configured, but everything in this guide works today.
 
 **Project facts used throughout this guide**
 
@@ -17,6 +21,7 @@ you **what success looks like**.
 | --- | --- |
 | GitHub organization | `thecoloradosun` |
 | Repository name | `colorado-sun-wp` |
+| Your GitHub username | `kevincosun` |
 | Where you'll clone it | `~/Projects/colorado-sun-wp` |
 | Node version | Latest LTS (the template's `.nvmrc` says `lts/*`) |
 
@@ -24,18 +29,32 @@ you **what success looks like**.
 
 ## Table of contents
 
+0. [Before you start](#0-before-you-start)
 1. [GitHub fundamentals](#1-github-fundamentals)
-2. [macOS environment setup](#2-macos-environment-setup)
+2. [macOS setup — with your AI pair-programmer](#2-macos-setup--with-your-ai-pair-programmer)
 3. [VS Code orientation](#3-vs-code-orientation)
 4. [The big picture — one diagram](#4-the-big-picture--one-diagram)
 5. [Quick reference](#5-quick-reference)
 
 ---
 
+## 0. Before you start
+
+1. **Accept the repo invitation.** Check the email for `kevincosun` (or visit
+   <https://github.com/thecoloradosun/colorado-sun-wp>) and click **Accept
+   invitation**. Until you accept, you can't clone the private repo.
+   - ✅ **Success:** the repo page loads and shows the files instead of a 404.
+
+2. **Have your GitHub password / 2FA handy.** You'll sign in once during setup.
+
+That's the only clicking-around you do up front. Everything else is guided prompts.
+
+---
+
 ## 1. GitHub fundamentals
 
-Before touching a terminal, learn the five words you'll hear every day. Read this
-section once; you don't need to type anything yet.
+Read this section once; you don't need to type anything yet. These are the five
+words you'll hear every day.
 
 ### 1.1 The core vocabulary
 
@@ -116,269 +135,235 @@ So the promotion path — **`trunk → alpha → release`** — maps directly to
 
 ---
 
-## 2. macOS environment setup
+## 2. macOS setup — with your AI pair-programmer
 
-Now the hands-on part. You'll install and verify **five tools**: Homebrew (a helper
-to install the rest), Git, Node (via `nvm`), Composer, and VS Code — plus the
-GitHub CLI (`gh`) for authentication.
+The plan: install **VS Code** first (it's your editor *and* home of the AI agent),
+turn on **Copilot Chat in Agent mode**, then let the agent install and verify the
+rest of the toolchain by pasting the prompts below.
+
+**How the agent works (read once):**
+
+- You type a request in the Chat panel. In **Agent mode**, Copilot can propose and
+  run **terminal commands** — but it always asks first. You'll see the command and
+  an **Allow / Continue** button. Read it, then click to run.
+- **Two things only *you* can do** (the agent can't, on purpose):
+  1. **Type your Mac login password** when macOS asks in the terminal (installing
+     Homebrew needs it). Typing shows no characters — that's normal.
+  2. **Sign in to GitHub in your browser** when prompted (the "Authorize" click).
+- After each install, ask the agent to **verify the version** — the ✅ lines below
+  tell you what a good result looks like.
+
+> **Tip:** paste the prompts **one at a time** and let each finish. Don't paste the
+> next one until the current step shows its ✅ success.
 
-> **How to open the Terminal:** Press `Cmd + Space`, type `Terminal`, press
-> `Return`. A window with a text prompt opens. You type a command and press
-> `Return` to run it. That's it.
+### 2.1 Install VS Code (the one fully-manual step)
+
+You need the editor before you can use the agent, so this first step is by hand.
 
-> **Reading the tables below:** each step shows the **command** to run and the
-> **✅ success check** — what you should see if it worked.
+1. Open <https://code.visualstudio.com> in your browser and click **Download for
+   macOS**.
+2. Open the downloaded `.zip` (it becomes **Visual Studio Code.app**), then drag
+   that app into your **Applications** folder.
+3. Open **Applications → Visual Studio Code**. If macOS warns it was downloaded
+   from the internet, click **Open**.
+
+- ✅ **Success:** VS Code opens to a Welcome tab.
+
+### 2.2 Turn on Copilot Chat (Agent mode)
+
+1. In VS Code, look at the **title bar** for the **Copilot** icon (or press
+   `Ctrl + Cmd + I`) to open the **Chat** panel.
+2. If prompted, **Sign in** with your GitHub account (`kevincosun`) and enable
+   Copilot. (Colorado Sun's org provides your Copilot access — ping Eric if it
+   asks you to start a trial.)
+3. At the top or bottom of the Chat panel there's a **mode dropdown**. Choose
+   **Agent**.
+4. Open a working folder so the agent has somewhere to run commands: **File → Open
+   Folder…**, create/select a folder named **`Projects`** in your home directory,
+   and open it.
+
+- ✅ **Success:** the Chat panel is open, the mode says **Agent**, and there's a
+  text box where you can type a prompt.
+
+> From here on, "**Ask the agent:**" means *paste this text into that Chat box and
+> press Return*, then approve the commands it proposes.
+
+### 2.3 Install Homebrew (the macOS package manager)
+
+Homebrew (`brew`) installs the other developer tools.
 
-### 2.1 Install Homebrew (the macOS package manager)
-
-Homebrew (`brew`) is the standard way to install developer tools on macOS. We use
-it for Git, Composer, the GitHub CLI, and `nvm`.
-
-1. **Check whether you already have it:**
-
-   ```bash
-   brew --version
-   ```
-
-   - ✅ **Success:** you see something like `Homebrew 4.x.x`. **Skip to
-     [2.2](#22-install-and-verify-git).**
-   - If you instead see `command not found: brew`, continue to step 2.
-
-2. **Install Homebrew:**
-
-   ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-
-   Follow the prompts (it may ask for your Mac login password — typing shows no
-   characters, that's normal — and to install Apple's Command Line Tools).
-
-3. **On Apple Silicon Macs (M1/M2/M3), add Homebrew to your PATH** so the terminal
-   can find it. (On older Intel Macs you can skip this.)
-
-   ```bash
-   echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-   eval "$(/opt/homebrew/bin/brew shellenv)"
-   ```
-
-4. **Verify:**
-
-   ```bash
-   brew --version
-   ```
-
-   - ✅ **Success:** `Homebrew 4.x.x` (any 4.x is fine).
-
-### 2.2 Install and verify Git
-
-Git is the version-control engine underneath everything. macOS may ship an old
-copy; installing via Homebrew gives you a current one.
-
-1. **Install:**
-
-   ```bash
-   brew install git
-   ```
-
-2. **Verify:**
-
-   ```bash
-   git --version
-   ```
-
-   - ✅ **Success:** `git version 2.40.0` or higher.
-
-3. **Tell Git who you are** (this name/email is stamped on every commit — use the
-   email tied to your GitHub account):
-
-   ```bash
-   git config --global user.name "Your Name"
-   git config --global user.email "you@example.com"
-   ```
-
-4. **Set the default branch name** and a sensible pull behavior:
-
-   ```bash
-   git config --global init.defaultBranch trunk
-   git config --global pull.rebase false
-   ```
-
-5. **Confirm your settings:**
-
-   ```bash
-   git config --global --list
-   ```
-
-   - ✅ **Success:** you see your `user.name` and `user.email` in the output.
-
-### 2.3 Install and authenticate the GitHub CLI (`gh`)
-
-`gh` is GitHub's official command-line tool. We use it to **log in once** (so
-cloning and pushing "just work" without fiddling with passwords or SSH keys) and
-later to work with pull requests from the terminal.
-
-1. **Install:**
-
-   ```bash
-   brew install gh
-   ```
-
-2. **Verify:**
-
-   ```bash
-   gh --version
-   ```
-
-   - ✅ **Success:** `gh version 2.x.x`.
-
-3. **Log in to GitHub** (this is the important one):
-
-   ```bash
-   gh auth login
-   ```
-
-   Answer the interactive prompts like this:
-
-   | Prompt | Choose |
-   | --- | --- |
-   | *What account do you want to log into?* | **GitHub.com** |
-   | *What is your preferred protocol for Git operations?* | **HTTPS** |
-   | *Authenticate Git with your GitHub credentials?* | **Yes** |
-   | *How would you like to authenticate?* | **Login with a web browser** |
-
-   `gh` shows a **one-time code** and opens your browser. Type/paste the code,
-   click **Authorize**, and return to the terminal.
-
-4. **Confirm you're logged in:**
-
-   ```bash
-   gh auth status
-   ```
-
-   - ✅ **Success:** `✓ Logged in to github.com account <your-username>`. This also
-     configured Git to authenticate as you, so future `clone`/`push` need no
-     password.
-
-### 2.4 Install Node via `nvm` (matching the template's `.nvmrc`)
-
-The plugin's build tools run on **Node.js**. The template pins its Node version in
-a file named `.nvmrc`, which contains `lts/*` — meaning **"the latest Long-Term
-Support release."** We install **`nvm`** (Node Version Manager) so you can match
-that automatically and switch versions per project.
-
-1. **Install `nvm`:**
-
-   ```bash
-   brew install nvm
-   ```
-
-2. **Enable `nvm` in your shell** (this makes the `nvm` command available every
-   time you open a terminal):
-
-   ```bash
-   mkdir -p ~/.nvm
-   cat << 'EOF' >> ~/.zshrc
-
-   export NVM_DIR="$HOME/.nvm"
-   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
-   [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
-   EOF
-   ```
-
-   > On an Intel Mac, replace `/opt/homebrew/opt/nvm` with `/usr/local/opt/nvm` in
-   > both lines above.
-
-3. **Load the new settings** (or just quit and reopen Terminal):
-
-   ```bash
-   source ~/.zshrc
-   ```
-
-4. **Verify `nvm` works:**
-
-   ```bash
-   nvm --version
-   ```
-
-   - ✅ **Success:** `0.39.x` or similar.
-
-5. **Install the latest LTS Node** (this is what `lts/*` resolves to):
-
-   ```bash
-   nvm install --lts
-   nvm use --lts
-   nvm alias default 'lts/*'
-   ```
-
-6. **Verify Node and npm:**
-
-   ```bash
-   node --version
-   npm --version
-   ```
-
-   - ✅ **Success:** `node --version` prints `v22.x.x` (or whatever the current LTS
-     is — an even major number like 20 or 22), and `npm --version` prints `10.x.x`
-     or higher.
-
-   > **Later, inside the cloned repo:** running `nvm use` with no arguments reads
-   > the repo's `.nvmrc` and switches you to exactly the version the project wants.
-   > You'll do this once per terminal session when working on the plugin.
-
-### 2.5 Install and verify Composer (PHP dependencies)
-
-WordPress plugins are PHP. **Composer** manages PHP libraries and the linting
-tools our pull requests require. It needs PHP, which recent macOS no longer ships,
-so we install both.
-
-1. **Install PHP and Composer:**
-
-   ```bash
-   brew install php composer
-   ```
-
-2. **Verify PHP:**
-
-   ```bash
-   php --version
-   ```
-
-   - ✅ **Success:** `PHP 8.x.x`.
-
-3. **Verify Composer:**
-
-   ```bash
-   composer --version
-   ```
-
-   - ✅ **Success:** `Composer version 2.x.x`.
-
-### 2.6 Install VS Code
-
-VS Code is the editor we'll both use. Installing the `code` command lets you open
-projects from the terminal.
-
-1. **Install VS Code:**
-
-   ```bash
-   brew install --cask visual-studio-code
-   ```
-
-2. **Verify:**
-
-   ```bash
-   code --version
-   ```
-
-   - ✅ **Success:** a version number like `1.9x.x` on the first line.
-
-   > If `code` isn't found, open VS Code manually, press
-   > `Cmd + Shift + P`, type **"Shell Command: Install 'code' command in PATH"**,
-   > and press `Return`. Then reopen the terminal and try again.
-
-### 2.7 Final verification — everything at once
-
-Run this block to confirm all tools are present. This is your "am I ready?" check.
+**Ask the agent:**
+
+```text
+Check whether Homebrew is installed on this Mac by running `brew --version`.
+If it's missing, install Homebrew using the official install script from
+brew.sh, then (on Apple Silicon) add it to my PATH in ~/.zprofile and load it.
+Finally run `brew --version` again to confirm. Tell me if you need me to type
+my Mac password in the terminal.
+```
+
+- **You may need to:** type your **Mac login password** in the terminal when the
+  installer asks, and press Return to confirm the Command Line Tools install.
+- ✅ **Success:** `brew --version` prints `Homebrew 4.x.x`.
+
+<details><summary>Manual fallback</summary>
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Apple Silicon only — add brew to PATH:
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+brew --version
+```
+</details>
+
+### 2.4 Install and configure Git
+
+**Ask the agent:**
+
+```text
+Install git with Homebrew, then set my global git identity to name "Kevin Co"
+and email "<the email on my GitHub account>". Also set the default branch name
+to "trunk" and set pull.rebase to false. Then show me `git --version` and
+`git config --global --list` so I can confirm.
+```
+
+Replace the name/email with your real values (use the email tied to your GitHub
+account — it gets stamped on every commit).
+
+- ✅ **Success:** `git --version` is `2.40` or higher, and the config list shows
+  your `user.name` and `user.email`.
+
+<details><summary>Manual fallback</summary>
+
+```bash
+brew install git
+git config --global user.name "Kevin Co"
+git config --global user.email "you@example.com"
+git config --global init.defaultBranch trunk
+git config --global pull.rebase false
+git config --global --list
+```
+</details>
+
+### 2.5 Install the GitHub CLI (`gh`) and sign in
+
+`gh` is GitHub's official command-line tool. Signing in once makes cloning and
+pushing "just work" — no passwords or SSH keys to manage.
+
+**Ask the agent:**
+
+```text
+Install the GitHub CLI (gh) with Homebrew and show me `gh --version`. Then start
+`gh auth login` for me. I'll answer the prompts and finish signing in through my
+browser — pause and let me interact with the terminal when it needs me.
+```
+
+- **You interact for the sign-in.** When `gh auth login` runs, answer:
+
+  | Prompt | Choose |
+  | --- | --- |
+  | *What account do you want to log into?* | **GitHub.com** |
+  | *Preferred protocol for Git operations?* | **HTTPS** |
+  | *Authenticate Git with your GitHub credentials?* | **Yes** |
+  | *How would you like to authenticate?* | **Login with a web browser** |
+
+  Copy the **one-time code** it shows, press Return to open the browser, paste the
+  code, and click **Authorize**.
+- ✅ **Success:** `gh auth status` reports
+  `✓ Logged in to github.com account kevincosun`.
+
+<details><summary>Manual fallback</summary>
+
+```bash
+brew install gh
+gh --version
+gh auth login      # choose GitHub.com → HTTPS → Yes → Login with a web browser
+gh auth status
+```
+</details>
+
+### 2.6 Install Node via `nvm` (matching the template's `.nvmrc`)
+
+The plugin's build tools run on **Node.js**. The template pins its version in a
+file called `.nvmrc` containing `lts/*` — "the latest Long-Term Support release."
+We use **`nvm`** (Node Version Manager) so you can match that automatically.
+
+**Ask the agent:**
+
+```text
+Install nvm with Homebrew, then add the nvm setup lines to my ~/.zshrc so it
+loads in new terminals (use the Apple Silicon path /opt/homebrew/opt/nvm if this
+is an Apple Silicon Mac, otherwise /usr/local/opt/nvm). Reload the shell config,
+then install the latest LTS Node with `nvm install --lts`, make it the default,
+and show me `node --version` and `npm --version` to confirm.
+```
+
+- ✅ **Success:** `node --version` prints `v22.x.x` (or whatever the current LTS is
+  — an even major number like 20 or 22) and `npm --version` prints `10.x` or
+  higher.
+
+> **Later, inside the cloned repo,** running `nvm use` with no arguments reads the
+> repo's `.nvmrc` and switches you to exactly the version the project wants. You'll
+> do this once per terminal session while working on the plugin.
+
+<details><summary>Manual fallback</summary>
+
+```bash
+brew install nvm
+mkdir -p ~/.nvm
+cat << 'EOF' >> ~/.zshrc
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+EOF
+source ~/.zshrc
+nvm install --lts
+nvm use --lts
+nvm alias default 'lts/*'
+node --version && npm --version
+```
+On an Intel Mac, replace `/opt/homebrew/opt/nvm` with `/usr/local/opt/nvm`.
+</details>
+
+### 2.7 Install PHP and Composer
+
+WordPress plugins are PHP. **Composer** manages PHP libraries and the linting tools
+our pull requests require. Recent macOS no longer ships PHP, so we install both.
+
+**Ask the agent:**
+
+```text
+Install php and composer with Homebrew, then show me `php --version` and
+`composer --version` to confirm they're on my PATH.
+```
+
+- ✅ **Success:** `php --version` prints `PHP 8.x.x` and `composer --version` prints
+  `Composer version 2.x.x`.
+
+<details><summary>Manual fallback</summary>
+
+```bash
+brew install php composer
+php --version
+composer --version
+```
+</details>
+
+### 2.8 Verify the whole toolchain at once
+
+**Ask the agent:**
+
+```text
+Run a single check that prints the versions of git, gh, node, npm, php, composer,
+and code (the VS Code CLI). Point out any that report "command not found".
+```
+
+- ✅ **Success:** every tool prints a version and **none** says `command not found`.
+  If one does, re-run that tool's step above.
+
+<details><summary>Manual fallback</summary>
 
 ```bash
 echo "git:      $(git --version)"
@@ -389,91 +374,81 @@ echo "php:      $(php --version | head -n1)"
 echo "composer: $(composer --version)"
 echo "code:     $(code --version | head -n1)"
 ```
+If `code` is missing, in VS Code press `Cmd + Shift + P`, run **"Shell Command:
+Install 'code' command in PATH"**, then reopen the terminal.
+</details>
 
-- ✅ **Success:** every line prints a version number and **none** says
-  `command not found`. If one does, revisit that tool's section above.
+### 2.9 Clone the repository and open it
 
-### 2.8 Clone the repository
+Now turn the GitHub repo into a working copy on your Mac.
 
-This is the moment you turn the GitHub repo into a working copy on your Mac.
+**Ask the agent:**
 
-1. **Create a projects folder and move into it:**
+```text
+Create ~/Projects if it doesn't exist, then clone thecoloradosun/colorado-sun-wp
+into it with the gh CLI. Move into the cloned folder, run `nvm use` to match the
+project's Node version, then run `npm run setup` to install PHP and Node
+dependencies. Tell me if anything fails.
+```
 
-   ```bash
-   mkdir -p ~/Projects
-   cd ~/Projects
-   ```
+- ✅ **Success:** cloning finishes without errors, `nvm use` prints
+  `Now using node v22.x.x`, and `npm run setup` ends without red `ERR!` lines.
+- **Then open the project:** **File → Open Folder…**, pick
+  `~/Projects/colorado-sun-wp`, and open it (or ask the agent to run `code .`).
 
-2. **Clone the repo** (thanks to `gh auth login`, no password is needed):
+<details><summary>Manual fallback</summary>
 
-   ```bash
-   gh repo clone thecoloradosun/colorado-sun-wp
-   ```
+```bash
+mkdir -p ~/Projects && cd ~/Projects
+gh repo clone thecoloradosun/colorado-sun-wp
+cd colorado-sun-wp
+nvm use
+npm run setup
+code .
+```
+</details>
 
-   - ✅ **Success:** you see `Cloning into 'colorado-sun-wp'...` followed by
-     progress lines, ending back at the prompt with no errors. A new folder
-     `~/Projects/colorado-sun-wp` now exists.
-
-3. **Move into the project and match its Node version:**
-
-   ```bash
-   cd colorado-sun-wp
-   nvm use
-   ```
-
-   - ✅ **Success:** `nvm use` prints `Now using node v22.x.x (npm ...)`, read from
-     the repo's `.nvmrc`.
-
-4. **Install the project's dependencies** (this reads the repo's setup script and
-   pulls both PHP and Node packages):
-
-   ```bash
-   npm run setup
-   ```
-
-   - ✅ **Success:** it finishes without red `ERR!` lines. You're ready to work.
-
-5. **Open the project in VS Code:**
-
-   ```bash
-   code .
-   ```
-
-   - ✅ **Success:** VS Code opens with the `colorado-sun-wp` files listed in the
-     left sidebar.
+> Once the project is open, read [`docs/GETTING_STARTED.md`](GETTING_STARTED.md)
+> again from inside the repo — you're looking at it now, and it travels with the
+> code.
 
 ---
 
 ## 3. VS Code orientation
 
-VS Code will be your daily workspace. This section covers the three things you'll
-touch constantly — **extensions**, the **Source Control panel**, and the
-**integrated terminal** — framed around our **staging-only** workflow.
+You already met the **Chat / Agent** panel in [Section 2](#2-macos-setup--with-your-ai-pair-programmer).
+Three more things you'll touch daily — **extensions**, the **Source Control**
+panel, and the **integrated terminal** — all framed around our **staging-only**
+workflow.
 
-### 3.1 Install the recommended extensions
+### 3.1 Recommended extensions
 
-Extensions add language support and enforce our shared code style so both your
-machines behave identically.
+Extensions add language support and enforce our shared code style so both machines
+behave identically.
 
-1. Open VS Code, then open the **Extensions** view: click the square icon in the
-   left **Activity Bar**, or press `Cmd + Shift + X`.
-2. Search for and **Install** each of these:
+**Ask the agent:**
 
-   | Extension | Publisher | Why we use it |
-   | --- | --- | --- |
-   | **PHP Intelephense** | Ben Mewburn | Smart PHP autocomplete and error hints |
-   | **PHP Sniffer & Beautifier** *(or PHPCS)* | — | Runs the WordPress coding-standard checks locally |
-   | **ESLint** | Microsoft | Flags JavaScript problems as you type |
-   | **Prettier** | Prettier | Auto-formats code on save |
-   | **GitLens** | GitKraken | Shows who changed each line and when |
+```text
+Recommend and install the VS Code extensions this project needs for WordPress PHP
+plugin development: PHP Intelephense, a PHP CodeSniffer runner, ESLint, Prettier,
+and GitLens. If the repo has a .vscode/extensions.json, install everything it
+recommends.
+```
 
-   > Once the repo is cloned, it will include a `.vscode/extensions.json` file.
-   > VS Code then shows a **"This workspace has recommended extensions"** popup —
-   > click **Install All** and you're done in one click. (That file arrives in
-   > Roadmap Phase 5.)
+Or do it by hand: open **Extensions** (`Cmd + Shift + X`) and install:
 
-3. ✅ **Success:** each extension shows a gear icon (installed) instead of an
-   **Install** button.
+| Extension | Publisher | Why we use it |
+| --- | --- | --- |
+| **PHP Intelephense** | Ben Mewburn | Smart PHP autocomplete and error hints |
+| **PHP Sniffer & Beautifier** *(or PHPCS)* | — | Runs the WordPress coding-standard checks locally |
+| **ESLint** | Microsoft | Flags JavaScript problems as you type |
+| **Prettier** | Prettier | Auto-formats code on save |
+| **GitLens** | GitKraken | Shows who changed each line and when |
+
+> When the repo gains a `.vscode/extensions.json` (Roadmap Phase 5), VS Code shows
+> a **"This workspace has recommended extensions"** popup — click **Install All**.
+
+- ✅ **Success:** each extension shows a gear icon (installed) instead of **Install**.
 
 ### 3.2 The Source Control panel (commit & push without memorizing commands)
 
@@ -490,8 +465,12 @@ while you're still learning the Git vocabulary from [Section 1](#1-github-fundam
 4. Click **Sync Changes** (or the **`…` menu → Push**) to **push** your commits up
    to GitHub.
 
-- ✅ **Success:** after pushing, the little "outgoing" counter next to the branch
-  name at the bottom-left returns to `0`, meaning GitHub now has your commits.
+- ✅ **Success:** after pushing, the "outgoing" counter next to the branch name at
+  the bottom-left returns to `0`, meaning GitHub now has your commits.
+
+> You can also just **ask the agent**: *"Stage my changes, commit them with a clear
+> message describing what I changed, and push the current branch."* It'll show you
+> the commit message before running.
 
 > **Staging-workflow reminder:** committing and pushing a **feature branch** does
 > **not** deploy anything. Deployment only happens when code reaches **`alpha`**
@@ -500,14 +479,14 @@ while you're still learning the Git vocabulary from [Section 1](#1-github-fundam
 
 ### 3.3 The integrated terminal
 
-VS Code has a built-in terminal so you never leave the editor. This is where you'll
-run `nvm use`, the linters, and the build.
+VS Code has a built-in terminal so you never leave the editor — and it's the same
+terminal the agent uses.
 
 1. Open it with **View → Terminal**, or press `` Ctrl + ` `` (Control plus the
    backtick key, top-left of the keyboard).
 2. It opens **already inside your project folder**, so commands run against the
    right code.
-3. The commands you'll run most often while building the plugin:
+3. The commands you'll run most often (or ask the agent to run) while building:
 
    | Command | What it does | When |
    | --- | --- | --- |
@@ -516,15 +495,14 @@ run `nvm use`, the linters, and the build.
    | `npm run lint` | Run the JavaScript/CSS checks | Before every push |
    | `npm run build` | Compile the plugin's assets | Before testing on staging |
 
-- ✅ **Success:** `composer phpcs` and `npm run lint` finish with **no errors**.
-  These are the same checks that must pass on your pull request, so running them
-  here first saves round-trips. If they fail, fix the reported files and re-run
-  before pushing.
+- ✅ **Success:** `composer phpcs` and `npm run lint` finish with **no errors** —
+  the same checks that must pass on your pull request, so running them here first
+  saves round-trips. If they fail, ask the agent: *"Explain these lint errors and
+  fix them,"* then re-run.
 
-> **Why this matters for staging-only:** because we can't test on a local
-> WordPress site, these local checks + the staging deploy are your safety net.
-> Green linters locally → open a PR → merge to `trunk` → merge to `alpha` → verify
-> on the real staging site.
+> **Why this matters for staging-only:** because we can't test on a local WordPress
+> site, these local checks + the staging deploy are your safety net. Green linters
+> locally → open a PR → merge to `trunk` → merge to `alpha` → verify on staging.
 
 ---
 
@@ -564,7 +542,7 @@ auto-deploy to **staging**, verify on the real site, and after sign-off promote 
 
 ## 5. Quick reference
 
-**Daily loop, in commands:**
+**Daily loop, in commands** (or paste any line into the agent and let it run):
 
 ```bash
 cd ~/Projects/colorado-sun-wp   # go to the project
@@ -580,6 +558,13 @@ git push -u origin my-feature   # send the branch to GitHub
 gh pr create --base trunk       # open a pull request into trunk
 ```
 
+**Handy agent prompts:**
+
+- *"Start a new feature branch off trunk called `add-footer-note`."*
+- *"Run the PHP and JS linters and fix anything they flag."*
+- *"Commit my changes with a clear message and push this branch."*
+- *"Open a pull request from this branch into trunk and summarize what changed."*
+
 **The three environment branches at a glance:**
 
 | Branch | Push here to deploy to | Meaning |
@@ -588,11 +573,12 @@ gh pr create --base trunk       # open a pull request into trunk
 | `alpha` | **Staging** | Test on a real site |
 | `release` | **Production** | Live for readers |
 
-**If something isn't found in the terminal:** re-run the matching install step in
-[Section 2](#2-macos-environment-setup), then reopen the terminal.
+**If a tool "isn't found" in the terminal:** re-run that tool's step in
+[Section 2](#2-macos-setup--with-your-ai-pair-programmer) (or ask the agent to
+reinstall it), then reopen the terminal.
 
 ---
 
 *Next up (Roadmap Phase 4+): automated staging/production deploys are being
-configured. The repo already exists, so you can clone it now via
-[Section 2.8](#28-clone-the-repository) and start exploring the code.*
+configured. The repo already exists, so clone it now via
+[Section 2.9](#29-clone-the-repository-and-open-it) and start exploring the code.*
