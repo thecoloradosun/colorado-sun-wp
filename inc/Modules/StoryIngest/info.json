@@ -1,0 +1,5 @@
+{
+	"name": "Story Ingest",
+	"description": "Sends story metadata (post ID, title, slug, URL, headline versions) to the NewsroomOS story database via webhook on save_post. Tracks display headline and Yoast SEO title changes for headline-performance analytics.",
+	"author": "Colorado Sun"
+}

@@ -18,6 +18,7 @@ The Colorado Sun's WordPress site platform. PHP theme/plugin code with a modern 
 
 ## Key directories
 - `inc/` — PHP includes
+- `inc/Modules/` — feature modules, each with a `module.php` auto-loaded entry point
 - `src/` — source assets (JS/CSS)
 - `docs/` — documentation
 - `plugin.php` — plugin entry
