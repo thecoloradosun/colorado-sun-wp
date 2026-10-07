@@ -38,9 +38,9 @@ class StoryIngestor {
 	 * wp_remote_post for the HTTP call; failures are logged but never
 	 * block the save operation.
 	 *
-	 * @param int     $post_id Post ID being saved.
-	 * @param \WP_Post $post   The post object.
-	 * @param bool    $update  Whether this is an update to an existing post.
+	 * @param int      $post_id Post ID being saved.
+	 * @param \WP_Post $post    The post object.
+	 * @param bool     $update  Whether this is an update to an existing post.
 	 * @return void
 	 */
 	public static function on_save_post( int $post_id, \WP_Post $post, bool $update ): void {
@@ -72,7 +72,7 @@ class StoryIngestor {
 	/**
 	 * Build the JSON payload for the NewsroomOS upsert endpoint.
 	 *
-	 * @param int     $post_id Post ID.
+	 * @param int      $post_id Post ID.
 	 * @param \WP_Post $post   The post object.
 	 * @return array<string, mixed> Payload ready for JSON encoding.
 	 */
@@ -138,6 +138,7 @@ class StoryIngestor {
 			return;
 		}
 
+		// phpcs:disable WordPressVIPMinimum.Performance.RemoteRequestTimeout -- Deliberately high: the webhook is fire-and-forget from save_post and must succeed even when the target endpoint is momentarily slow.
 		$response = wp_remote_post(
 			$webhook_url,
 			array(
@@ -149,6 +150,7 @@ class StoryIngestor {
 				'timeout' => 10,
 			)
 		);
+		// phpcs:enable WordPressVIPMinimum.Performance.RemoteRequestTimeout
 
 		if ( is_wp_error( $response ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
