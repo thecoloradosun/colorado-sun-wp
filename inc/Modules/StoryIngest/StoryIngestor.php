@@ -3,8 +3,8 @@
  * Story Ingestor — sends story metadata to NewsroomOS on save_post.
  *
  * Hooks save_post to capture post ID, display headline, Yoast SEO title,
- * slug, URL, and post type, then POSTs them to the NewsroomOS webhook
- * endpoint for headline-version tracking and analytics.
+ * slug, URL, post type, and byline authors, then POSTs them to the
+ * NewsroomOS webhook endpoint for headline-version tracking and analytics.
  *
  * @package ColoradoSun
  */
@@ -96,6 +96,20 @@ class StoryIngestor {
 			$published_at = gmdate( 'c', strtotime( $gmt_time . ' GMT' ) );
 		}
 
+		// Authors — Co-Authors Plus when active, else the post author.
+		$authors = array();
+		if ( function_exists( 'get_coauthors' ) ) {
+			$coauthors = get_coauthors( $post_id );
+			foreach ( $coauthors as $coauthor ) {
+				$authors[] = $coauthor->display_name;
+			}
+		} else {
+			$post_author = get_userdata( $post->post_author );
+			if ( $post_author && ! empty( $post_author->display_name ) ) {
+				$authors[] = $post_author->display_name;
+			}
+		}
+
 		return array(
 			'post_id'          => $post_id,
 			'post_type'        => $post->post_type,
@@ -106,6 +120,7 @@ class StoryIngestor {
 			'published_at'     => $published_at,
 			'display_headline' => $display_headline,
 			'seo_headline'     => $seo_headline,
+			'authors'          => $authors,
 		);
 	}
 
