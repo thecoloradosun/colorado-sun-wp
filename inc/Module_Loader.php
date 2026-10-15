@@ -50,6 +50,15 @@ class Module_Loader {
 			self::get_menu_icon(),
 			3
 		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			'Modules',
+			'Modules',
+			'manage_options',
+			self::MENU_SLUG,
+			[ __CLASS__, 'render_admin_page' ]
+		);
 	}
 
 	/**
