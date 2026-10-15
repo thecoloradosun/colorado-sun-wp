@@ -184,11 +184,11 @@ class Appearance {
 	 * @return void
 	 */
 	public static function init() {
-		add_action( 'admin_menu',            [ __CLASS__, 'add_admin_menu' ] );
-		add_action( 'admin_init',            [ __CLASS__, 'register_settings' ] );
+		add_action( 'admin_menu', [ __CLASS__, 'add_admin_menu' ] );
+		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_assets' ] );
-		add_action( 'template_redirect',     [ __CLASS__, 'override_template' ], PHP_INT_MAX );
-		add_action( 'wp_footer',             [ __CLASS__, 'frontend_debug_marker' ], 1 );
+		add_action( 'template_redirect', [ __CLASS__, 'override_template' ], PHP_INT_MAX );
+		add_action( 'wp_footer', [ __CLASS__, 'frontend_debug_marker' ], 1 );
 	}
 
 	/**
@@ -220,12 +220,12 @@ class Appearance {
 	 */
 	public static function override_template() {
 		self::$redirect_state = [
-			'fired'        => true,
-			'singular'     => is_singular(),
-			'single'       => is_single(),
-			'post_type'    => get_post_type(),
-			'tpl_exists'   => file_exists( dirname( __DIR__, 2 ) . '/templates/single-post.php' ),
-			'tpl_path'     => dirname( __DIR__, 2 ) . '/templates/single-post.php',
+			'fired'      => true,
+			'singular'   => is_singular(),
+			'single'     => is_single(),
+			'post_type'  => get_post_type(),
+			'tpl_exists' => file_exists( dirname( __DIR__, 2 ) . '/templates/single-post.php' ),
+			'tpl_path'   => dirname( __DIR__, 2 ) . '/templates/single-post.php',
 		];
 		if ( ! is_singular() ) {
 			return;
