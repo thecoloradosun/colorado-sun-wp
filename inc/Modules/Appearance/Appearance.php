@@ -188,6 +188,17 @@ class Appearance {
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_assets' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'override_template' ], PHP_INT_MAX );
+		add_action( 'wp_footer', [ __CLASS__, 'frontend_debug_marker' ], 1 );
+	}
+
+	/**
+	 * Debug marker to confirm the plugin loads on the front end.
+	 * Remove after wiring is verified.
+	 *
+	 * @return void
+	 */
+	public static function frontend_debug_marker() {
+		echo '<!-- newsroomos:frontend-loaded -->'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -201,7 +212,7 @@ class Appearance {
 	 * @return void
 	 */
 	public static function override_template() {
-		if ( ! is_singular( 'post' ) ) {
+		if ( ! is_singular() ) {
 			return;
 		}
 		$plugin_template = dirname( __DIR__, 2 ) . '/templates/single-post.php';

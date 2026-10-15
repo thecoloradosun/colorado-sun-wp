@@ -183,12 +183,19 @@ class Module_Loader {
 		if ( ! is_array( $active_modules ) ) {
 			$active_modules = [];
 		}
-		// Upgrade: ensure Appearance module is active (added in 1.1.0).
-		$appearance_path = __DIR__ . '/Modules/Appearance/module.php';
-		if ( ! in_array( $appearance_path, $active_modules, true ) && file_exists( $appearance_path ) ) {
-			$active_modules[] = $appearance_path;
-			update_option( self::MODULES_OPTION_NAME, $active_modules );
+		// All-registered modules: ensure every module dir with module.php is loaded
+		// (belt-and-suspenders: some hosts cache stale option values; always load available modules).
+		$modules_dir = __DIR__ . '/Modules';
+		foreach ( scandir( $modules_dir ) as $dir ) {
+			if ( '.' === $dir || '..' === $dir ) {
+				continue;
+			}
+			$module_file = $modules_dir . '/' . $dir . '/module.php';
+			if ( file_exists( $module_file ) && ! in_array( $module_file, $active_modules, true ) ) {
+				$active_modules[] = $module_file;
+			}
 		}
+		update_option( self::MODULES_OPTION_NAME, $active_modules );
 		foreach ( $active_modules as $module ) {
 			if ( file_exists( $module ) ) {
 				require_once $module;
