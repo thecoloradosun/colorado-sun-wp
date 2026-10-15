@@ -5,10 +5,10 @@
  * Adds a dashboard widget and an admin bar notice so you can visually verify
  * the module is loaded and active.
  *
- * @package ColoradoSun
+ * @package NewsroomOS
  */
 
-namespace ColoradoSun\Modules\HelloWorld;
+namespace NewsroomOS\Modules\HelloWorld;
 
 defined( 'ABSPATH' ) || exit;
 

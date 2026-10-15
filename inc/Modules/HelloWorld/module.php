@@ -2,10 +2,10 @@
 /**
  * Automatically loaded when the Hello World module is active.
  *
- * @package ColoradoSun
+ * @package NewsroomOS
  */
 
-namespace ColoradoSun\Modules\HelloWorld;
+namespace NewsroomOS\Modules\HelloWorld;
 
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
