@@ -184,12 +184,19 @@ class Appearance {
 	 * @return void
 	 */
 	public static function init() {
-		add_action( 'admin_menu', [ __CLASS__, 'add_admin_menu' ] );
-		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
+		add_action( 'admin_menu',            [ __CLASS__, 'add_admin_menu' ] );
+		add_action( 'admin_init',            [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_assets' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'override_template' ], PHP_INT_MAX );
-		add_action( 'wp_footer', [ __CLASS__, 'frontend_debug_marker' ], 1 );
+		add_action( 'template_redirect',     [ __CLASS__, 'override_template' ], PHP_INT_MAX );
+		add_action( 'wp_footer',             [ __CLASS__, 'frontend_debug_marker' ], 1 );
 	}
+
+	/**
+	 * State captured at template_redirect time, printed by debug marker.
+	 *
+	 * @var array
+	 */
+	private static $redirect_state = [];
 
 	/**
 	 * Debug marker to confirm the plugin loads on the front end.
@@ -198,7 +205,7 @@ class Appearance {
 	 * @return void
 	 */
 	public static function frontend_debug_marker() {
-		echo '<!-- newsroomos:frontend-loaded -->'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<!-- newsroomos:frontend-loaded ' . wp_json_encode( self::$redirect_state ) . ' -->'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -212,6 +219,14 @@ class Appearance {
 	 * @return void
 	 */
 	public static function override_template() {
+		self::$redirect_state = [
+			'fired'        => true,
+			'singular'     => is_singular(),
+			'single'       => is_single(),
+			'post_type'    => get_post_type(),
+			'tpl_exists'   => file_exists( dirname( __DIR__, 2 ) . '/templates/single-post.php' ),
+			'tpl_path'     => dirname( __DIR__, 2 ) . '/templates/single-post.php',
+		];
 		if ( ! is_singular() ) {
 			return;
 		}
