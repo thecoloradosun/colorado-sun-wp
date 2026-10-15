@@ -1,7 +1,10 @@
-# Newspack starter template for custom plugins
+# NewsroomOS — The Colorado Sun's WordPress plugin
 
-This template is a pre-configured starting point for custom plugin development on the Newspack platform.
-It will give you all of the tools you need to get up and running quickly.
+The platform plugin for The Colorado Sun's WordPress site, built on the
+[Newspack starter template for custom plugins](https://help.newspack.com/newspack-developer-hub/how-to-set-up-the-newspack-starter-template-for-custom-plugins/).
+Newsroom tooling lives as modules under `inc/Modules/`, enabled from the
+**NewsroomOS** admin menu, and deploys to staging (`alpha`) and production
+(`release`) via GitHub Actions.
 
 ## What does it provide?
 

@@ -2,10 +2,10 @@
 /**
  * Automatically loaded when the Story Ingest module is active.
  *
- * @package ColoradoSun
+ * @package NewsroomOS
  */
 
-namespace ColoradoSun\Modules\StoryIngest;
+namespace NewsroomOS\Modules\StoryIngest;
 
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;

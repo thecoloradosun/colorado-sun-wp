@@ -2,10 +2,10 @@
 /**
  * Admin Panel Notice.
  *
- * @package ColoradoSun
+ * @package NewsroomOS
  */
 
-namespace ColoradoSun\Modules\Sample;
+namespace NewsroomOS\Modules\Sample;
 
 defined( 'ABSPATH' ) || exit;
 

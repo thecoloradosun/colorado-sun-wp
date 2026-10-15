@@ -2,10 +2,10 @@
 /**
  * This file will be automatically loaded when the module is active.
  *
- * @package ColoradoSun
+ * @package NewsroomOS
  */
 
-namespace ColoradoSun\Modules\Sample;
+namespace NewsroomOS\Modules\Sample;
 
 /**
  * Here you can have code doing stuff. Just remember to always perform actions in a hook callback and never in the global scope.

@@ -43,5 +43,12 @@ define( 'COLORADO_SUN_STORY_WEBHOOK_KEY', '6327c6f448b75e218bf0a0e3f61f8e0ca28d4
 After alpha branch is pushed and secrets configured:
 1. Merge PR into `trunk`
 2. Merge `trunk` into `alpha` → GitHub Action deploys to staging
-3. On the staging WP admin, go to **Settings → Custom Modules** and enable **Story Ingest**
-4. Create/update a post on staging WP → watch the webhook fire to staging-newsroom.cosun.xyz
+3. The plugin now deploys to `wp-content/plugins/newsroomos/` (renamed from `custom-plugin`).
+   Because the plugin path changed, WordPress deactivates it — reactivate **NewsroomOS**
+   on the staging WP admin (Plugins → NewsroomOS).
+4. Go to the **NewsroomOS** top-level admin menu (sun icon) and enable **Story Ingest**
+5. Create/update a post on staging WP → watch the webhook fire to staging-newsroom.cosun.xyz
+
+The webhook config constants keep their original names
+(`COLORADO_SUN_STORY_WEBHOOK_URL` / `COLORADO_SUN_STORY_WEBHOOK_KEY` in `wp-config.php`) —
+they are the infra contract with the newsroomOS app and are intentionally unchanged.
