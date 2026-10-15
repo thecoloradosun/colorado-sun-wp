@@ -180,6 +180,17 @@ class Module_Loader {
 	 */
 	public static function load_modules() {
 		$active_modules = get_option( self::MODULES_OPTION_NAME, [] );
+		if ( ! is_array( $active_modules ) ) {
+			$active_modules = [];
+		}
+		// Auto-enable core modules on first run.
+		if ( empty( $active_modules ) && false === get_option( self::MODULES_OPTION_NAME, false ) ) {
+			$active_modules = [
+				__DIR__ . '/Modules/StoryIngest/module.php',
+				__DIR__ . '/Modules/Appearance/module.php',
+			];
+			update_option( self::MODULES_OPTION_NAME, $active_modules );
+		}
 		if ( ! empty( $active_modules ) ) {
 			foreach ( $active_modules as $module ) {
 				if ( file_exists( $module ) ) {
