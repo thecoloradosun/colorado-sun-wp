@@ -6,10 +6,10 @@
  * slug, URL, post type, and byline authors, then POSTs them to the
  * NewsroomOS webhook endpoint for headline-version tracking and analytics.
  *
- * @package ColoradoSun
+ * @package NewsroomOS
  */
 
-namespace ColoradoSun\Modules\StoryIngest;
+namespace NewsroomOS\Modules\StoryIngest;
 
 defined( 'ABSPATH' ) || exit;
 

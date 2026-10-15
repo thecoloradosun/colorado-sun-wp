@@ -2,10 +2,10 @@
 /**
  * Module Loader
  *
- * @package ColoradoSun
+ * @package NewsroomOS
  */
 
-namespace ColoradoSun;
+namespace NewsroomOS;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,6 +15,10 @@ defined( 'ABSPATH' ) || exit;
 class Module_Loader {
 
 	const MODULES_OPTION_NAME = __NAMESPACE__ . '-modules';
+
+	const MENU_SLUG = 'newsroomos';
+
+	const OPTION_PAGE_SLUG = 'newsroomos-modules';
 
 	/**
 	 * Initialize the class
@@ -31,15 +35,20 @@ class Module_Loader {
 	/**
 	 * Add the admin menu.
 	 *
+	 * The NewsroomOS settings surface gets its own top-level sidebar entry
+	 * (with the NewsroomOS sun icon) instead of living under Settings.
+	 *
 	 * @return void
 	 */
 	public static function add_admin_menu() {
-		add_options_page(
-			'Custom Modules',
-			'Custom Modules',
+		add_menu_page(
+			'NewsroomOS',
+			'NewsroomOS',
 			'manage_options',
-			'custom-modules',
-			[ __CLASS__, 'render_admin_page' ]
+			self::MENU_SLUG,
+			[ __CLASS__, 'render_admin_page' ],
+			self::get_menu_icon(),
+			3
 		);
 	}
 
@@ -50,7 +59,7 @@ class Module_Loader {
 	 * @return array
 	 */
 	public static function add_allowed_options( $options ) {
-		$options['custom-modules'] = [ self::MODULES_OPTION_NAME ];
+		$options[ self::OPTION_PAGE_SLUG ] = [ self::MODULES_OPTION_NAME ];
 		return $options;
 	}
 
@@ -67,11 +76,11 @@ class Module_Loader {
 		$available_modules = self::get_available_modules();
 		?>
 		<div class="wrap">
-			<h1>Custom Modules</h1>
-			<p>Enable or disable Custom modules</p>
+			<h1>NewsroomOS</h1>
+			<p>Enable or disable NewsroomOS modules.</p>
 			<form method="post" action="options.php">
-				<?php wp_nonce_field( 'custom-modules-options' ); ?>
-				<input type="hidden" name="option_page" value="custom-modules">
+				<?php wp_nonce_field( self::OPTION_PAGE_SLUG . '-options' ); ?>
+				<input type="hidden" name="option_page" value="<?php echo esc_attr( self::OPTION_PAGE_SLUG ); ?>">
 				<input type="hidden" name="action" value="update">
 				<table class="form-table" role="presentation">
 					<tbody>
@@ -101,6 +110,21 @@ class Module_Loader {
 			</form>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Get the admin menu icon as a base64-encoded SVG data URI.
+	 *
+	 * WordPress renders data-URI SVG menu icons as a CSS background image
+	 * (see _wp_menu_output() in wp-admin/menu-header.php), so the fill color
+	 * must be baked in — #a7aaad is the default admin menu icon gray.
+	 *
+	 * @return string
+	 */
+	private static function get_menu_icon() {
+		$svg_path = dirname( __DIR__ ) . '/assets/icon-menu.svg';
+		$svg      = file_get_contents( $svg_path ); // phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
+		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
 	}
 
 	/**

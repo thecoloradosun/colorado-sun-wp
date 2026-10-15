@@ -1,7 +1,7 @@
 # Colorado Sun WordPress Platform (colorado-sun-wp)
 
 ## Overview
-The Colorado Sun's WordPress site platform. PHP theme/plugin code with a modern build toolchain (Composer + npm).
+NewsroomOS — The Colorado Sun's WordPress platform plugin (formerly "Colorado Sun custom plugin"). PHP plugin code with a modern build toolchain (Composer + npm).
 
 ## Tech Stack
 - WordPress (PHP)
@@ -25,7 +25,8 @@ The Colorado Sun's WordPress site platform. PHP theme/plugin code with a modern 
 - `composer.json` — PHP dependencies
 
 ## Conventions
-- `main` protected; `feature/<name>` branches, squash-merge PRs.
+- `trunk` protected; `feature/<name>` branches, squash-merge PRs.
+- Deploy: merge `trunk` into `alpha` (staging) and `release` (production) — GitHub Actions SFTP.
 - Conventional commits.
 - PHP linting via `composer lint` / phpcs; JS/CSS via npm lint scripts.
 
