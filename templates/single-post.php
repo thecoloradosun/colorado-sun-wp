@@ -9,16 +9,17 @@
  * @package NewsroomOS
  */
 
+// Use fully-qualified namespace to avoid autoloader timing issues.
 use NewsroomOS\Modules\Appearance\Appearance;
 
 get_header();
 
-$settings    = Appearance::get_settings();
-$current_ct  = get_post_type();
-$is_page     = 'page' === $current_ct;
-$tpl_key     = $is_page ? 'page' : ( 'post' === $current_ct ? 'single' : 'single-post' );
-$layout      = $settings['layout']['templates'][ $tpl_key ] ?? $settings['layout']['templates']['single'];
-$feat_pos    = $layout['featured_image_position'];
+$profile    = Appearance::get_active_profile();
+$current_ct = get_post_type();
+$is_page    = 'page' === $current_ct;
+$tpl_key    = $is_page ? 'page' : ( 'post' === $current_ct ? 'single' : 'single-post' );
+$layout     = $profile['layout']['templates'][ $tpl_key ] ?? $profile['layout']['templates']['single'];
+$feat_pos   = $layout['featured_image_position'];
 ?>
 
 <main id="main" class="site-main" role="main">
@@ -29,46 +30,46 @@ $feat_pos    = $layout['featured_image_position'];
 		<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 
 			<?php
-			// Determine featured image and shared bar positions from element order.
-			$before_parts  = [];
-			$after_parts   = [];
-			$feat_in_order = false;
-			$found_feat    = false;
-
-			foreach ( $settings['header_elements'] as $el ) {
-				if ( empty( $el['enabled'] ) ) {
-					continue;
-				}
-				if ( 'featured_image' === $el['id'] ) {
-					if ( 'hidden' !== $feat_pos && has_post_thumbnail() ) {
-						$feat_in_order = true;
-					}
-					continue;
-				}
-				$html = Appearance::render_single_element( $el, get_the_ID() );
-				if ( 'between_headline_body' === $feat_pos ) {
-					if ( $found_feat ) {
-						$after_parts[] = $html;
-					} else {
-						$before_parts[] = $html;
-					}
-				} else {
-					$before_parts[] = $html;
-				}
-			}
-
 			$feat_html = '';
 			if ( 'hidden' !== $feat_pos && has_post_thumbnail() ) {
 				$feat_html = '<div class="newsroomos-element newsroomos-featured-image post-thumbnail">' . get_the_post_thumbnail( get_the_ID(), 'full' ) . '</div>';
 			}
 
 			if ( 'between_headline_body' === $feat_pos ) {
+				// Split before/after at the featured image position in the element list.
+				$before_parts = [];
+				$after_parts  = [];
+				$past_feat    = false;
+				foreach ( $profile['header_elements'] as $el ) {
+					if ( empty( $el['enabled'] ) ) {
+						continue;
+					}
+					if ( 'featured_image' === $el['id'] ) {
+						$past_feat = true;
+						continue;
+					}
+					$html = Appearance::render_single_element( $el, get_the_ID() );
+					if ( $past_feat ) {
+						$after_parts[] = $html;
+					} else {
+						$before_parts[] = $html;
+					}
+				}
 				echo implode( '', $before_parts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $feat_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo implode( '', $after_parts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			} else {
-				echo $feat_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo implode( '', $before_parts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				$all_parts = [];
+				foreach ( $profile['header_elements'] as $el ) {
+					if ( empty( $el['enabled'] ) || 'featured_image' === $el['id'] ) {
+						continue;
+					}
+					$all_parts[] = Appearance::render_single_element( $el, get_the_ID() );
+				}
+				if ( 'above_headline' === $feat_pos ) {
+					echo $feat_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				}
+				echo implode( '', $all_parts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			?>
 
@@ -77,9 +78,9 @@ $feat_pos    = $layout['featured_image_position'];
 			</div>
 
 			<?php
-			// Share bar at end of article if it's not placed in the header.
+			// If share_bar is not in the header elements, append it after the body.
 			$share_in_header = false;
-			foreach ( $settings['header_elements'] as $el ) {
+			foreach ( $profile['header_elements'] as $el ) {
 				if ( 'share_bar' === $el['id'] && ! empty( $el['enabled'] ) ) {
 					$share_in_header = true;
 					break;
