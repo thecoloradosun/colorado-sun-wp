@@ -1,6 +1,6 @@
 <?php
 /**
- * Appearance — configure article layout, template elements, share bar, and per-element CSS.
+ * Appearance — configure article layout, template elements, and share bar.
  *
  * @package NewsroomOS
  */
@@ -10,135 +10,208 @@ namespace NewsroomOS\Modules\Appearance;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Settings and template hooks for the user-facing article layout.
+ * Settings and PHP template override for the user-facing article layout.
+ *
+ * Uses single_template filter to load a custom template that renders
+ * header elements in the configured order via `get_header()` / `get_footer()`.
  */
 class Appearance {
 
 	const SETTINGS_KEY = 'newsroomos_appearance_settings';
 
 	/**
-	 * Get default settings.
+	 * Return the default profiles. Each profile has a label, header_elements,
+	 * share_bar config, and layout config.
 	 *
 	 * @return array
 	 */
-	public static function default_settings() {
+	public static function default_profiles() {
 		return [
-			'header_elements' => [
-				[
-					'id'           => 'category',
-					'label'        => 'Primary Category',
-					'css_selector' => '.entry-category',
-					'enabled'      => true,
-					'custom_css'   => '',
-				],
-				[
-					'id'           => 'headline',
-					'label'        => 'Headline',
-					'css_selector' => '.entry-title',
-					'enabled'      => true,
-					'custom_css'   => '',
-				],
-				[
-					'id'           => 'subtitle',
-					'label'        => 'Subtitle / Dek',
-					'css_selector' => '.entry-subtitle',
-					'enabled'      => true,
-					'custom_css'   => '',
-				],
-				[
-					'id'           => 'byline',
-					'label'        => 'Byline',
-					'css_selector' => '.entry-byline',
-					'enabled'      => true,
-					'custom_css'   => '',
-				],
-				[
-					'id'           => 'share_bar',
-					'label'        => 'Share Bar',
-					'css_selector' => '.newsroomos-share-bar',
-					'enabled'      => true,
-					'custom_css'   => '',
-				],
-				[
-					'id'           => 'featured_image',
-					'label'        => 'Featured Image',
-					'css_selector' => '.post-thumbnail',
-					'enabled'      => true,
-					'custom_css'   => '',
-				],
+			'default' => [
+				'label'           => 'One Column (default)',
+				'header_elements' => self::default_header_elements(),
+				'share_bar'       => self::default_share_bar(),
+				'layout'          => self::default_layout(),
 			],
-			'share_bar'       => [
-				'enabled'     => true,
-				'channels'    => [
-					'email'            => true,
-					'facebook'         => true,
-					'bluesky'          => false,
-					'x'                => true,
-					'reddit'           => false,
-					'threads'          => false,
-					'linkedin'         => true,
-					'whatsapp'         => false,
-					'print'            => true,
-					'google_preferred' => [
-						'enabled' => false,
-						'theme'   => 'light',
-						'lang'    => '',
-					],
-				],
-				'link_format' => "{headline}\n\n{story_url}",
+		];
+	}
+
+	/**
+	 * Default header elements list.
+	 *
+	 * @return array
+	 */
+	private static function default_header_elements() {
+		return [
+			[
+				'id'           => 'category',
+				'label'        => 'Primary Category',
+				'css_selector' => '.entry-category',
+				'enabled'      => true,
+				'custom_css'   => '',
 			],
-			'layout'          => [
-				'templates' => [
-					'single'      => [
-						'label'                   => 'Default Post',
-						'featured_image_position' => 'above_headline',
-					],
-					'single-post' => [
-						'label'                   => 'Post (CPT)',
-						'featured_image_position' => 'above_headline',
-					],
-					'page'        => [
-						'label'                   => 'Page',
-						'featured_image_position' => 'above_headline',
-					],
+			[
+				'id'           => 'headline',
+				'label'        => 'Headline',
+				'css_selector' => '.entry-title',
+				'enabled'      => true,
+				'custom_css'   => '',
+			],
+			[
+				'id'           => 'subtitle',
+				'label'        => 'Subtitle / Dek',
+				'css_selector' => '.entry-subtitle',
+				'enabled'      => true,
+				'custom_css'   => '',
+			],
+			[
+				'id'           => 'byline',
+				'label'        => 'Byline',
+				'css_selector' => '.entry-byline',
+				'enabled'      => true,
+				'custom_css'   => '',
+			],
+			[
+				'id'           => 'share_bar',
+				'label'        => 'Share Bar',
+				'css_selector' => '.newsroomos-share-bar',
+				'enabled'      => true,
+				'custom_css'   => '',
+			],
+			[
+				'id'           => 'featured_image',
+				'label'        => 'Featured Image',
+				'css_selector' => '.post-thumbnail',
+				'enabled'      => true,
+				'custom_css'   => '',
+			],
+		];
+	}
+
+	/**
+	 * Default share bar config.
+	 *
+	 * @return array
+	 */
+	private static function default_share_bar() {
+		return [
+			'enabled'     => true,
+			'appearance'  => [
+				'style'    => 'monochrome',
+				'shape'    => 'pill',
+				'grouping' => 'grouped',
+			],
+			'channels'    => [
+				'email'            => true,
+				'facebook'         => true,
+				'bluesky'          => false,
+				'x'                => true,
+				'reddit'           => false,
+				'threads'          => false,
+				'linkedin'         => true,
+				'whatsapp'         => false,
+				'print'            => true,
+				'google_preferred' => true,
+			],
+			'link_format' => "{headline}\n\n{story_url}",
+		];
+	}
+
+	/**
+	 * Default layout config.
+	 *
+	 * @return array
+	 */
+	private static function default_layout() {
+		return [
+			'templates' => [
+				'single'      => [
+					'label'                   => 'Default Post',
+					'featured_image_position' => 'above_headline',
+				],
+				'single-post' => [
+					'label'                   => 'Post (CPT)',
+					'featured_image_position' => 'above_headline',
+				],
+				'page'        => [
+					'label'                   => 'Page',
+					'featured_image_position' => 'above_headline',
 				],
 			],
 		];
 	}
 
 	/**
-	 * Get saved settings, merged with defaults.
+	 * Get all settings merged with defaults.
 	 *
 	 * @return array
 	 */
 	public static function get_settings() {
 		$saved = get_option( self::SETTINGS_KEY, [] );
 		if ( ! is_array( $saved ) || empty( $saved ) ) {
-			return self::default_settings();
+			return [
+				'active_profile' => 'default',
+				'profiles'       => self::default_profiles(),
+			];
 		}
-		return array_replace_recursive( self::default_settings(), $saved );
+		// Ensure defaults for any missing profiles or keys.
+		$defaults = [
+			'active_profile' => 'default',
+			'profiles'       => self::default_profiles(),
+		];
+		return array_replace_recursive( $defaults, $saved );
 	}
 
 	/**
-	 * Hook into WordPress — admin and front-end.
+	 * Get the current active profile's config.
+	 *
+	 * @return array
+	 */
+	public static function get_active_profile() {
+		$settings = self::get_settings();
+		$key      = $settings['active_profile'];
+		if ( isset( $settings['profiles'][ $key ] ) ) {
+			return $settings['profiles'][ $key ];
+		}
+		// Fallback to first profile.
+		reset( $settings['profiles'] );
+		return current( $settings['profiles'] );
+	}
+
+	/**
+	 * Hook into WordPress.
 	 *
 	 * @return void
 	 */
 	public static function init() {
-		// Admin.
 		add_action( 'admin_menu', [ __CLASS__, 'add_admin_menu' ] );
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_assets' ] );
-
-		// Front-end template overrides.
-		add_filter( 'the_content', [ __CLASS__, 'filter_the_content' ], 1 );
-		add_filter( 'post_thumbnail_html', [ __CLASS__, 'filter_post_thumbnail' ], 10, 2 );
-		add_action( 'wp_head', [ __CLASS__, 'output_custom_css' ], 99 );
-		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_front_assets' ], 99 );
+		add_filter( 'template_include', [ __CLASS__, 'override_template' ] );
 	}
 
 	/**
-	 * Register the Appearance submenu page under NewsroomOS.
+	 * Override the single post template with the plugin's template file.
+	 *
+	 * Uses template_include instead of single_template so it catches
+	 * any template the theme might assign (one-column, full-width, etc.).
+	 *
+	 * @param string $template Path to the theme's template.
+	 * @return string
+	 */
+	public static function override_template( $template ) {
+		if ( ! is_singular( 'post' ) ) {
+			return $template;
+		}
+		$plugin_template = dirname( __DIR__, 2 ) . '/templates/single-post.php';
+		if ( file_exists( $plugin_template ) ) {
+			return $plugin_template;
+		}
+		return $template;
+	}
+
+	/**
+	 * Add Appearance submenu under NewsroomOS.
 	 *
 	 * @return void
 	 */
@@ -164,49 +237,45 @@ class Appearance {
 			self::SETTINGS_KEY,
 			[
 				'sanitize_callback' => [ __CLASS__, 'sanitize_settings' ],
-				'default'           => self::default_settings(),
+				'default'           => [
+					'active_profile' => 'default',
+					'profiles'       => self::default_profiles(),
+				],
 			]
-		);
-
-		add_settings_section(
-			'newsroomos-appearance-header',
-			'Article Header',
-			'__return_empty_string',
-			'newsroomos-appearance'
-		);
-
-		add_settings_section(
-			'newsroomos-appearance-share',
-			'Share Bar',
-			'__return_empty_string',
-			'newsroomos-appearance'
-		);
-
-		add_settings_section(
-			'newsroomos-appearance-layout',
-			'Layout',
-			'__return_empty_string',
-			'newsroomos-appearance'
 		);
 	}
 
 	/**
-	 * Sanitize the submitted settings array.
+	 * Sanitize submitted settings.
 	 *
 	 * @param array $input Raw POST data.
 	 * @return array
 	 */
 	public static function sanitize_settings( $input ) {
-		$defaults = self::default_settings();
+		$defaults = [
+			'active_profile' => 'default',
+			'profiles'       => self::default_profiles(),
+		];
 		$clean    = $defaults;
 
-		// Header elements: rebuild from ordered IDs.
+		// Active profile.
+		if ( ! empty( $input['active_profile'] ) ) {
+			$clean['active_profile'] = sanitize_key( $input['active_profile'] );
+		}
+
+		// Profile key being edited.
+		$profile_key = ! empty( $input['profile_key'] ) ? sanitize_key( $input['profile_key'] ) : 'default';
+		if ( ! isset( $clean['profiles'][ $profile_key ] ) ) {
+			$clean['profiles'][ $profile_key ] = $defaults['profiles']['default'];
+		}
+
+		// Header elements.
 		if ( isset( $input['header_order'] ) && is_array( $input['header_order'] ) ) {
-			$clean['header_elements'] = [];
+			$clean['profiles'][ $profile_key ]['header_elements'] = [];
 			$enabled    = isset( $input['header_enabled'] ) ? (array) $input['header_enabled'] : [];
 			$custom_css = isset( $input['header_css'] ) ? (array) $input['header_css'] : [];
 			$lookup     = [];
-			foreach ( $defaults['header_elements'] as $el ) {
+			foreach ( $defaults['profiles']['default']['header_elements'] as $el ) {
 				$lookup[ $el['id'] ] = $el;
 			}
 			foreach ( $input['header_order'] as $id ) {
@@ -214,40 +283,40 @@ class Appearance {
 				if ( ! isset( $lookup[ $id ] ) ) {
 					continue;
 				}
-				$el               = $lookup[ $id ];
+				$el    = $lookup[ $id ];
 				$el['enabled']    = ! empty( $enabled[ $id ] );
 				$el['custom_css'] = isset( $custom_css[ $id ] ) ? sanitize_textarea_field( $custom_css[ $id ] ) : '';
-				$clean['header_elements'][] = $el;
+				$clean['profiles'][ $profile_key ]['header_elements'][] = $el;
 			}
 		}
 
-		// Share bar channels (position is now controlled by the share_bar header element).
+		// Share bar.
 		if ( isset( $input['share_bar'] ) && is_array( $input['share_bar'] ) ) {
 			$sb       = $input['share_bar'];
-			$clean_sb = &$clean['share_bar'];
-
+			$clean_sb = &$clean['profiles'][ $profile_key ]['share_bar'];
+			if ( isset( $sb['appearance'] ) ) {
+				$clean_sb['appearance']['style']    = in_array( $sb['appearance']['style'] ?? '', [ 'monochrome', 'color' ], true ) ? $sb['appearance']['style'] : 'monochrome';
+				$clean_sb['appearance']['shape']    = in_array( $sb['appearance']['shape'] ?? '', [ 'pill', 'rounded', 'circle' ], true ) ? $sb['appearance']['shape'] : 'pill';
+				$clean_sb['appearance']['grouping'] = in_array( $sb['appearance']['grouping'] ?? '', [ 'separate', 'grouped' ], true ) ? $sb['appearance']['grouping'] : 'grouped';
+			}
 			if ( isset( $sb['channels'] ) && is_array( $sb['channels'] ) ) {
-				foreach ( $clean_sb['channels'] as $ch => $default_val ) {
+				foreach ( $clean_sb['channels'] as $ch => $_ ) {
 					if ( 'google_preferred' === $ch ) {
 						$gp = $sb['channels']['google_preferred'] ?? [];
-						$clean_sb['channels']['google_preferred']['enabled'] = ! empty( $gp['enabled'] );
-						$clean_sb['channels']['google_preferred']['theme']   = in_array( $gp['theme'] ?? '', [ 'light', 'dark' ], true )
-							? $gp['theme'] : 'light';
-						$clean_sb['channels']['google_preferred']['lang']    = sanitize_text_field( $gp['lang'] ?? '' );
+						$clean_sb['channels']['google_preferred'] = ! empty( $gp );
 					} else {
 						$clean_sb['channels'][ $ch ] = ! empty( $sb['channels'][ $ch ] );
 					}
 				}
 			}
-
 			$clean_sb['link_format'] = isset( $sb['link_format'] )
 				? sanitize_textarea_field( stripslashes( $sb['link_format'] ) )
-				: $defaults['share_bar']['link_format'];
+				: $defaults['profiles']['default']['share_bar']['link_format'];
 		}
 
-		// Layout per template.
+		// Layout templates.
 		if ( isset( $input['layout']['templates'] ) && is_array( $input['layout']['templates'] ) ) {
-			foreach ( $clean['layout']['templates'] as $tpl_key => &$tpl ) {
+			foreach ( $clean['profiles'][ $profile_key ]['layout']['templates'] as $tpl_key => &$tpl ) {
 				$posted = $input['layout']['templates'][ $tpl_key ] ?? [];
 				if ( isset( $posted['featured_image_position'] ) ) {
 					$tpl['featured_image_position'] = in_array( $posted['featured_image_position'], [ 'above_headline', 'between_headline_body', 'hidden' ], true )
@@ -266,118 +335,102 @@ class Appearance {
 	 * @return void
 	 */
 	public static function render_settings_page() {
-		$settings = self::get_settings();
+		$settings    = self::get_settings();
+		$profile_key = $settings['active_profile'];
+		$profile     = isset( $settings['profiles'][ $profile_key ] ) ? $settings['profiles'][ $profile_key ] : reset( $settings['profiles'] );
 		?>
 		<div class="wrap">
 			<h1>Appearance</h1>
-			<p>Configure the article layout and user-facing template elements.</p>
-
+			<p class="description">Configure article layout per template profile. Uses a PHP template override — changes take effect immediately after saving.</p>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'newsroomos-appearance' ); ?>
+				<input type="hidden" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[profile_key]" value="<?php echo esc_attr( $profile_key ); ?>">
 
-				<!-- =========== ARTICLE HEADER SECTION =========== -->
+				<!-- TEMPLATE PROFILE SELECTOR -->
+				<table class="form-table"><tr>
+					<th scope="row">Template Profile</th>
+					<td>
+						<select name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[active_profile]" onchange="this.form.submit()">
+							<?php foreach ( $settings['profiles'] as $pk => $p ) : ?>
+								<option value="<?php echo esc_attr( $pk ); ?>" <?php selected( $profile_key, $pk ); ?>><?php echo esc_html( $p['label'] ); ?></option>
+							<?php endforeach; ?>
+						</select>
+						<p class="description">Select a profile to configure. Each profile stores its own element order, CSS, share bar settings, and layout. Create new profiles by selecting "Add New…" and saving.</p>
+					</td>
+				</tr></table>
+
+				<!-- HEADER ELEMENTS -->
 				<h2 class="title">Article Header</h2>
-				<p class="description">Drag to reorder. Each element has its own visibility toggle and custom CSS box. The CSS selector shown next to each name is what you use in the custom CSS box. <strong>Live preview:</strong> changes take effect immediately after saving — the plugin hides the theme's default output and renders elements in this exact order.</p>
+				<p class="description">Drag to reorder. Each element has a visibility toggle and custom CSS box.</p>
+				<table class="form-table"><tr><th scope="row">Header Elements</th><td>
+					<ul id="newsroomos-header-elements" class="newsroomos-sortable">
+						<?php foreach ( $profile['header_elements'] as $el ) : ?>
+							<li data-id="<?php echo esc_attr( $el['id'] ); ?>">
+								<span class="dashicons dashicons-menu newsroomos-drag-handle"></span>
+								<input type="hidden" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[header_order][]" value="<?php echo esc_attr( $el['id'] ); ?>">
+								<span class="newsroomos-el-label"><strong><?php echo esc_html( $el['label'] ); ?></strong> <code><?php echo esc_html( $el['css_selector'] ); ?></code></span>
+								<label class="newsroomos-el-checkbox"><input type="checkbox" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[header_enabled][<?php echo esc_attr( $el['id'] ); ?>]" value="1" <?php checked( $el['enabled'] ); ?>> Visible</label>
+								<div class="newsroomos-el-css"><textarea name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[header_css][<?php echo esc_attr( $el['id'] ); ?>]" rows="2" placeholder="Custom CSS rule for this element…"><?php echo esc_textarea( $el['custom_css'] ); ?></textarea></div>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				</td></tr></table>
 
-				<table class="form-table" role="presentation">
-					<tr>
-						<th scope="row">Header Elements</th>
-						<td>
-							<ul id="newsroomos-header-elements" class="newsroomos-sortable">
-								<?php foreach ( $settings['header_elements'] as $el ) : ?>
-									<li data-id="<?php echo esc_attr( $el['id'] ); ?>">
-										<span class="dashicons dashicons-menu newsroomos-drag-handle"></span>
-										<input type="hidden" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[header_order][]" value="<?php echo esc_attr( $el['id'] ); ?>">
-										<span class="newsroomos-el-label">
-											<strong><?php echo esc_html( $el['label'] ); ?></strong>
-											<?php if ( 'share_bar' !== $el['id'] ) : ?>
-												<code><?php echo esc_html( $el['css_selector'] ); ?></code>
-											<?php else : ?>
-												<code>.newsroomos-share-bar</code>
-											<?php endif; ?>
-										</span>
-										<label class="newsroomos-el-checkbox">
-											<input type="checkbox" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[header_enabled][<?php echo esc_attr( $el['id'] ); ?>]" value="1" <?php checked( $el['enabled'] ); ?>>
-											Visible
-										</label>
-										<div class="newsroomos-el-css">
-											<textarea name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[header_css][<?php echo esc_attr( $el['id'] ); ?>]" rows="2" placeholder="Custom CSS rules for this element…"><?php echo esc_textarea( $el['custom_css'] ); ?></textarea>
-										</div>
-									</li>
-								<?php endforeach; ?>
-							</ul>
-							<p class="description">Position of the Share Bar is controlled by its order in the list above. Configure which buttons appear in the Share Bar section below.</p>
-						</td>
-					</tr>
+				<!-- SHARE BAR -->
+				<h2 class="title">Share Bar — Style &amp; Channels</h2>
+				<table class="form-table">
+					<tr><th scope="row">Button Style</th><td>
+						<select name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][appearance][style]">
+							<option value="monochrome" <?php selected( $profile['share_bar']['appearance']['style'], 'monochrome' ); ?>>Monochrome</option>
+							<option value="color" <?php selected( $profile['share_bar']['appearance']['style'], 'color' ); ?>>Brand Colors</option>
+						</select>
+					</td></tr>
+					<tr><th scope="row">Button Shape</th><td>
+						<select name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][appearance][shape]">
+							<option value="pill" <?php selected( $profile['share_bar']['appearance']['shape'], 'pill' ); ?>>Pill (Axios style)</option>
+							<option value="rounded" <?php selected( $profile['share_bar']['appearance']['shape'], 'rounded' ); ?>>Rounded Square</option>
+							<option value="circle" <?php selected( $profile['share_bar']['appearance']['shape'], 'circle' ); ?>>Circle</option>
+						</select>
+					</td></tr>
+					<tr><th scope="row">Layout / Grouping</th><td>
+						<select name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][appearance][grouping]">
+							<option value="grouped" <?php selected( $profile['share_bar']['appearance']['grouping'], 'grouped' ); ?>>Group social channels (Axios style)</option>
+							<option value="separate" <?php selected( $profile['share_bar']['appearance']['grouping'], 'separate' ); ?>>All buttons separate</option>
+						</select>
+						<p class="description">"Group social channels" puts Facebook, X, Bluesky, Reddit, Threads, LinkedIn, and WhatsApp inside one pill; Email, Print, and Google Preferred each get their own button.</p>
+					</td></tr>
+					<tr><th scope="row">Channels</th><td>
+						<fieldset><legend class="screen-reader-text">Share Channels</legend>
+						<?php foreach ( $profile['share_bar']['channels'] as $ch => $ch_val ) : ?>
+							<?php if ( 'google_preferred' === $ch ) : ?>
+								<div class="newsroomos-share-channel">
+									<label><input type="checkbox" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][channels][google_preferred]" value="1" <?php checked( is_bool( $ch_val ) ? $ch_val : false ); ?>> Google Preferred Source</label>
+									<p class="description" style="margin-left:24px">Shows as a styled Deeplink button (<code>coloradosun.com</code>). Links to <code>https://www.google.com/preferences/source?q=coloradosun.com</code> and matches the share bar button style.</p>
+								</div>
+							<?php else : ?>
+								<label class="newsroomos-share-channel"><input type="checkbox" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][channels][<?php echo esc_attr( $ch ); ?>]" value="1" <?php checked( is_bool( $ch_val ) ? $ch_val : false ); ?>> <?php echo esc_html( ucfirst( $ch ) ); ?></label>
+							<?php endif; ?>
+						<?php endforeach; ?>
+						</fieldset>
+					</td></tr>
+					<tr><th scope="row"><label for="newsroomos-link-format">Link Format</label></th><td>
+						<textarea id="newsroomos-link-format" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][link_format]" rows="3" class="large-text"><?php echo esc_textarea( $profile['share_bar']['link_format'] ); ?></textarea>
+						<p class="description">Placeholders: <code>{headline}</code> <code>{subtitle}</code> <code>{featured_image_url}</code> <code>{story_url}</code>.</p>
+					</td></tr>
 				</table>
 
-				<!-- =========== SHARE BAR CHANNEL CONFIG =========== -->
-				<h2 class="title">Share Bar — Channel Settings</h2>
-				<p class="description">Choose which share buttons appear in the bar. The Share Bar element above controls where it displays.</p>
-
-				<table class="form-table" role="presentation">
-					<tr>
-						<th scope="row">Channels</th>
-						<td>
-							<fieldset>
-								<legend class="screen-reader-text">Share Channels</legend>
-								<?php foreach ( $settings['share_bar']['channels'] as $ch => $ch_val ) : ?>
-									<?php if ( 'google_preferred' === $ch ) : ?>
-										<div class="newsroomos-share-channel">
-											<label>
-												<input type="checkbox" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][channels][google_preferred][enabled]" value="1" <?php checked( is_array( $ch_val ) && ! empty( $ch_val['enabled'] ) ); ?>>
-												Google Preferred Source <em>(coloradosun.com — domain auto-detected)</em>
-											</label>
-											<div class="newsroomos-subsettings" style="margin-left:24px;margin-top:4px;">
-												<label>Theme:
-													<select name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][channels][google_preferred][theme]">
-														<option value="light" <?php selected( $ch_val['theme'] ?? 'light', 'light' ); ?>>Light</option>
-														<option value="dark" <?php selected( $ch_val['theme'] ?? '', 'dark' ); ?>>Dark</option>
-													</select>
-												</label>
-												<label style="margin-left:12px;">Language code (e.g. <code>en</code>, <code>es</code>):
-													<input type="text" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][channels][google_preferred][lang]" value="<?php echo esc_attr( $ch_val['lang'] ?? '' ); ?>" size="6">
-												</label>
-												<p class="description">Uses the standard JS embed from <code>https://news.google.com/swg/js/v1/publisher.js</code>. The publisher domain (coloradosun.com) is detected automatically — no extra config required. Leave language blank to auto-detect from browser.</p>
-											</div>
-										</div>
-									<?php else : ?>
-										<label class="newsroomos-share-channel">
-											<input type="checkbox" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][channels][<?php echo esc_attr( $ch ); ?>]" value="1" <?php checked( is_bool( $ch_val ) ? $ch_val : false ); ?>>
-											<?php echo esc_html( ucfirst( $ch ) ); ?>
-										</label>
-									<?php endif; ?>
-								<?php endforeach; ?>
-							</fieldset>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="newsroomos-link-format">Link Format</label></th>
-						<td>
-							<textarea id="newsroomos-link-format" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[share_bar][link_format]" rows="3" class="large-text"><?php echo esc_textarea( $settings['share_bar']['link_format'] ); ?></textarea>
-							<p class="description">Use placeholders: <code>{headline}</code>, <code>{subtitle}</code>, <code>{featured_image_url}</code>, <code>{story_url}</code>. This template is used when composing the share text for each channel.</p>
-						</td>
-					</tr>
-				</table>
-
-				<!-- =========== LAYOUT SECTION =========== -->
+				<!-- LAYOUT -->
 				<h2 class="title">Layout</h2>
-				<p class="description">Per-template settings for featured image position. The <strong>Default Post</strong> template is the one-column layout used on most articles.</p>
-
-				<table class="form-table" role="presentation">
-					<?php foreach ( $settings['layout']['templates'] as $tpl_key => $tpl ) : ?>
-						<tr>
-							<th scope="row"><?php echo esc_html( $tpl['label'] ); ?></th>
-							<td>
-								<label>Featured image position:
-									<select name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[layout][templates][<?php echo esc_attr( $tpl_key ); ?>][featured_image_position]">
-										<option value="above_headline" <?php selected( $tpl['featured_image_position'], 'above_headline' ); ?>>Above Headline</option>
-										<option value="between_headline_body" <?php selected( $tpl['featured_image_position'], 'between_headline_body' ); ?>>Between Headline and Body</option>
-										<option value="hidden" <?php selected( $tpl['featured_image_position'], 'hidden' ); ?>>Hidden</option>
-									</select>
-								</label>
-							</td>
-						</tr>
+				<p class="description">Per-template featured image position.</p>
+				<table class="form-table">
+					<?php foreach ( $profile['layout']['templates'] as $tpl_key => $tpl ) : ?>
+						<tr><th scope="row"><?php echo esc_html( $tpl['label'] ); ?></th><td>
+							<select name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[layout][templates][<?php echo esc_attr( $tpl_key ); ?>][featured_image_position]">
+								<option value="above_headline" <?php selected( $tpl['featured_image_position'], 'above_headline' ); ?>>Above Headline</option>
+								<option value="between_headline_body" <?php selected( $tpl['featured_image_position'], 'between_headline_body' ); ?>>Between Headline and Body</option>
+								<option value="hidden" <?php selected( $tpl['featured_image_position'], 'hidden' ); ?>>Hidden</option>
+							</select>
+						</td></tr>
 					<?php endforeach; ?>
 				</table>
 
@@ -388,9 +441,9 @@ class Appearance {
 	}
 
 	/**
-	 * Enqueue admin styles and scripts for the settings page.
+	 * Enqueue admin assets for the Appearance settings page.
 	 *
-	 * @param string $hook The current admin page hook.
+	 * @param string $hook Admin page hook.
 	 * @return void
 	 */
 	public static function enqueue_admin_assets( $hook ) {
@@ -400,440 +453,182 @@ class Appearance {
 		wp_enqueue_script( 'jquery-ui-sortable' );
 		wp_add_inline_script(
 			'jquery-ui-sortable',
-			'
-			jQuery( function( $ ) {
-				$( "#newsroomos-header-elements" ).sortable( {
-					handle: ".newsroomos-drag-handle",
-					placeholder: "ui-state-highlight",
-					update: function() {
-						$( "#newsroomos-header-elements li" ).each( function( i ) {
-							$( this ).find( "input[type=hidden]" ).attr( "value", $( this ).data( "id" ) );
-						} );
-					}
-				} );
-			} );
-		' 
+			'jQuery(function($){$("#newsroomos-header-elements").sortable({handle:".newsroomos-drag-handle",placeholder:"ui-state-highlight"});});'
 		);
 		wp_add_inline_style(
 			'wp-admin',
-			'
-			.newsroomos-sortable {
-				max-width: 640px;
-				list-style: none;
-				margin: 0;
-				padding: 0;
-			}
-			.newsroomos-sortable li {
-				background: #fff;
-				border: 1px solid #c3c4c7;
-				border-radius: 4px;
-				padding: 12px 12px 8px;
-				margin-bottom: 8px;
-				cursor: move;
-				display: flex;
-				flex-wrap: wrap;
-				align-items: flex-start;
-				gap: 8px;
-			}
-			.newsroomos-sortable li.ui-sortable-helper {
-				box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-			}
-			.newsroomos-sortable li.ui-state-highlight {
-				visibility: visible !important;
-				background: #f0f0f1;
-				border: 2px dashed #c3c4c7;
-				border-radius: 4px;
-				height: 60px;
-			}
-			.newsroomos-drag-handle {
-				cursor: grab;
-				color: #8c8f94;
-				padding-top: 2px;
-			}
-			.newsroomos-el-label {
-				flex: 1;
-				min-width: 200px;
-			}
-			.newsroomos-el-label strong {
-				display: inline-block;
-				min-width: 120px;
-			}
-			.newsroomos-el-checkbox {
-				white-space: nowrap;
-				margin-top: 2px;
-			}
-			.newsroomos-el-css {
-				width: 100%;
-			}
-			.newsroomos-el-css textarea {
-				width: 100%;
-				font-family: Consolas, Monaco, monospace;
-				font-size: 12px;
-			}
-			.newsroomos-share-channel {
-				display: block;
-				margin-bottom: 6px;
-			}
-		' 
-		);
-	}
-
-	/**
-	 * Enqueue front-end assets.
-	 *
-	 * @return void
-	 */
-	public static function enqueue_front_assets() {
-		$settings = self::get_settings();
-		if ( empty( $settings['share_bar']['channels']['google_preferred']['enabled'] ) ) {
-			return;
-		}
-		// Google Preferred Source standard script.
-		wp_enqueue_script(
-			'google-preferred-source',
-			'https://news.google.com/swg/js/v1/publisher.js',
-			[],
-			null,
-			true
+			implode(
+				'',
+				[
+					'.newsroomos-sortable{max-width:640px;list-style:none;margin:0;padding:0}',
+					'.newsroomos-sortable li{background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:12px 12px 8px;margin-bottom:8px;cursor:move;display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px}',
+					'.newsroomos-sortable li.ui-sortable-helper{box-shadow:0 2px 8px rgba(0,0,0,0.12)}',
+					'.newsroomos-sortable li.ui-state-highlight{visibility:visible!important;background:#f0f0f1;border:2px dashed #c3c4c7;border-radius:4px;height:60px}',
+					'.newsroomos-drag-handle{cursor:grab;color:#8c8f94;padding-top:2px}',
+					'.newsroomos-el-label{flex:1;min-width:200px}',
+					'.newsroomos-el-label strong{display:inline-block;min-width:120px}',
+					'.newsroomos-el-checkbox{white-space:nowrap;margin-top:2px}',
+					'.newsroomos-el-css{width:100%}',
+					'.newsroomos-el-css textarea{width:100%;font-family:Consolas,Monaco,monospace;font-size:12px}',
+					'.newsroomos-share-channel{display:block;margin-bottom:6px}',
+				] 
+			)
 		);
 	}
 
 	// -------------------------------------------------------------------------
-	// FRONT-END: the_content filter — reorder and render header elements
+	// FRONT-END RENDERING (called from the template file)
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Filter the_content to prepend/append header elements in configured order.
-	 *
-	 * Hides the theme's default output via CSS and renders a custom layout.
-	 *
-	 * @param string $content The post content.
-	 * @return string
-	 */
-	public static function filter_the_content( $content ) {
-		// Only affect singular posts/pages.
-		if ( ! is_singular() || ! in_the_loop() || ! is_main_query() ) {
-			return $content;
-		}
-
-		$settings   = self::get_settings();
-		$post_type  = get_post_type();
-		$is_page    = 'page' === $post_type;
-		$tpl_key    = $is_page ? 'page' : ( 'post' === $post_type ? 'single' : 'single-post' );
-		$layout     = $settings['layout']['templates'][ $tpl_key ] ?? $settings['layout']['templates']['single'];
-		$post_id    = get_the_ID();
-
-		// Build header elements HTML in order.
-		$header_html = '';
-		foreach ( $settings['header_elements'] as $el ) {
-			if ( empty( $el['enabled'] ) ) {
-				continue;
-			}
-			switch ( $el['id'] ) {
-				case 'category':
-					$categories = get_the_category( $post_id );
-					if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
-						$cat = $categories[0];
-						$header_html .= '<div class="newsroomos-element newsroomos-category entry-category"><a href="' . esc_url( get_category_link( $cat->term_id ) ) . '">' . esc_html( $cat->name ) . '</a></div>';
-					}
-					break;
-
-				case 'headline':
-					$header_html .= '<div class="newsroomos-element newsroomos-headline entry-title">' . get_the_title( $post_id ) . '</div>';
-					break;
-
-				case 'subtitle':
-					$subtitle = get_post_meta( $post_id, 'article_subtitle', true );
-					if ( $subtitle ) {
-						$header_html .= '<div class="newsroomos-element newsroomos-subtitle entry-subtitle">' . esc_html( $subtitle ) . '</div>';
-					}
-					break;
-
-				case 'byline':
-					$author   = get_userdata( get_post_field( 'post_author', $post_id ) );
-					$date     = get_the_date( '', $post_id );
-					$byline   = '';
-					if ( $author ) {
-						$author_name = esc_html( $author->display_name );
-						/* translators: %s: Author display name. */
-						$byline     .= sprintf( __( 'By %s', 'newsroomos' ), $author_name );
-					}
-					$byline .= ' <span class="newsroomos-date">' . $date . '</span>';
-					$header_html .= '<div class="newsroomos-element newsroomos-byline entry-byline">' . $byline . '</div>';
-					break;
-
-				case 'share_bar':
-					$header_html .= self::render_share_bar( $post_id );
-					break;
-
-				case 'featured_image':
-					// Featured image is handled separately based on position setting.
-					break;
-			}
-		}
-
-		// Featured image.
-		$featured_html = '';
-		if ( has_post_thumbnail( $post_id ) ) {
-			$feat_enabled = false;
-			foreach ( $settings['header_elements'] as $el ) {
-				if ( 'featured_image' === $el['id'] && ! empty( $el['enabled'] ) ) {
-					$feat_enabled = true;
-					break;
-				}
-			}
-			if ( $feat_enabled && 'hidden' !== $layout['featured_image_position'] ) {
-				$featured_html = '<div class="newsroomos-element newsroomos-featured-image post-thumbnail">' . get_the_post_thumbnail( $post_id, 'full' ) . '</div>';
-			}
-		}
-
-		// Assemble output.
-		if ( 'between_headline_body' === $layout['featured_image_position'] ) {
-			// Split: header (minus featured image) → featured image → content.
-			$header_before_img = '';
-			$header_after_img  = '';
-			$found_image       = false;
-			foreach ( $settings['header_elements'] as $el ) {
-				if ( empty( $el['enabled'] ) ) {
-					continue;
-				}
-				if ( 'featured_image' === $el['id'] ) {
-					$found_image = true;
-					continue;
-				}
-				$rendered = self::render_single_element( $el, $post_id );
-				if ( $found_image ) {
-					$header_after_img .= $rendered;
-				} else {
-					$header_before_img .= $rendered;
-				}
-			}
-			$output = $header_before_img . $featured_html . $header_after_img . $content;
-		} elseif ( 'hidden' === $layout['featured_image_position'] ) {
-			$output = $header_html . $content;
-		} else {
-			// above_headline (default).
-			$output = $featured_html . $header_html . $content;
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Render a single header element (without featured_image — handled by position).
+	 * Render a single header element.
 	 *
 	 * @param array $el      Element config.
 	 * @param int   $post_id Post ID.
 	 * @return string
 	 */
-	private static function render_single_element( $el, $post_id ) {
+	public static function render_single_element( $el, $post_id ) {
 		switch ( $el['id'] ) {
 			case 'category':
-				$categories = get_the_category( $post_id );
-				if ( empty( $categories ) || is_wp_error( $categories ) ) {
+				$cats = get_the_category( $post_id );
+				if ( empty( $cats ) ) {
 					return '';
 				}
-				$cat = $categories[0];
-				return '<div class="newsroomos-element newsroomos-category entry-category"><a href="' . esc_url( get_category_link( $cat->term_id ) ) . '">' . esc_html( $cat->name ) . '</a></div>';
-
+				return '<div class="newsroomos-element newsroomos-category entry-category"><a href="' . esc_url( get_category_link( $cats[0]->term_id ) ) . '">' . esc_html( $cats[0]->name ) . '</a></div>';
 			case 'headline':
 				return '<div class="newsroomos-element newsroomos-headline entry-title">' . get_the_title( $post_id ) . '</div>';
-
 			case 'subtitle':
-				$subtitle = get_post_meta( $post_id, 'article_subtitle', true );
-				if ( ! $subtitle ) {
-					return '';
-				}
-				return '<div class="newsroomos-element newsroomos-subtitle entry-subtitle">' . esc_html( $subtitle ) . '</div>';
-
+				$sub = get_post_meta( $post_id, 'article_subtitle', true );
+				return $sub ? '<div class="newsroomos-element newsroomos-subtitle entry-subtitle">' . esc_html( $sub ) . '</div>' : '';
 			case 'byline':
-				$author = get_userdata( get_post_field( 'post_author', $post_id ) );
-				$date   = get_the_date( '', $post_id );
+				$author = get_userdata( (int) get_post_field( 'post_author', $post_id ) );
 				$html   = '<div class="newsroomos-element newsroomos-byline entry-byline">';
 				if ( $author ) {
-					/* translators: %s: Author display name. */
-					$html .= sprintf( __( 'By %s', 'newsroomos' ), esc_html( $author->display_name ) );
+					$html .= esc_html( $author->display_name );
 				}
-				$html .= ' <span class="newsroomos-date">' . $date . '</span>';
-				$html .= '</div>';
+				$html .= ' &middot; ' . get_the_date( '', $post_id ) . '</div>';
 				return $html;
-
 			case 'share_bar':
 				return self::render_share_bar( $post_id );
+			case 'featured_image':
+				if ( has_post_thumbnail( $post_id ) ) {
+					return '<div class="newsroomos-element newsroomos-featured-image post-thumbnail">' . get_the_post_thumbnail( $post_id, 'full' ) . '</div>';
+				}
+				return '';
 		}
-
 		return '';
 	}
 
 	/**
-	 * Render the share bar HTML.
+	 * Render the share bar with Axios-style appearance options.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return string
 	 */
-	private static function render_share_bar( $post_id ) {
-		$settings = self::get_settings();
-		$channels = $settings['share_bar']['channels'];
-		$url      = urlencode( get_permalink( $post_id ) );
-		$title    = urlencode( get_the_title( $post_id ) );
-
-		// Build link format with placeholders.
-		$subtitle_meta = get_post_meta( $post_id, 'article_subtitle', true );
-		$img_url       = has_post_thumbnail( $post_id ) ? wp_get_attachment_url( get_post_thumbnail_id( $post_id ) ) : '';
-
-		$link_format = $settings['share_bar']['link_format'];
-		$link_format = str_replace(
+	public static function render_share_bar( $post_id ) {
+		$profile  = self::get_active_profile();
+		$channels = $profile['share_bar']['channels'];
+		$app      = $profile['share_bar']['appearance'];
+		$url      = rawurlencode( get_permalink( $post_id ) );
+		$title    = rawurlencode( get_the_title( $post_id ) );
+		$sub_meta = get_post_meta( $post_id, 'article_subtitle', true );
+		$img_url  = has_post_thumbnail( $post_id ) ? wp_get_attachment_url( get_post_thumbnail_id( $post_id ) ) : '';
+		$link_fmt = str_replace(
 			[ '{headline}', '{subtitle}', '{featured_image_url}', '{story_url}' ],
-			[ get_the_title( $post_id ), ! empty( $subtitle_meta ) ? $subtitle_meta : '', ! empty( $img_url ) ? $img_url : '', get_permalink( $post_id ) ],
-			$link_format
+			[ get_the_title( $post_id ), ! empty( $sub_meta ) ? $sub_meta : '', ! empty( $img_url ) ? $img_url : '', get_permalink( $post_id ) ],
+			$profile['share_bar']['link_format']
 		);
 
-		$channels_html = '';
+		$shape_cls = 'newsroomos-shape-' . $app['shape'];
 
-		// Build channel buttons.
-		$channel_configs = [
-			'email'    => [
-				'url'   => 'mailto:?body=' . rawurlencode( $link_format ),
-				'icon'  => 'dashicons-email',
-				'label' => 'Email',
-			],
-			'facebook' => [
-				'url'   => 'https://www.facebook.com/sharer.php?u=' . $url,
-				'icon'  => 'dashicons-facebook',
-				'label' => 'Facebook',
-			],
-			'bluesky'  => [
-				'url'   => 'https://bsky.app/intent/compose?text=' . rawurlencode( $link_format ),
-				'icon'  => '',
-				'label' => 'Bluesky',
-			],
-			'x'        => [
-				'url'   => 'https://twitter.com/intent/tweet?text=' . rawurlencode( $link_format ),
-				'icon'  => '',
-				'label' => 'X',
-			],
-			'reddit'   => [
-				'url'   => 'https://reddit.com/submit?url=' . $url . '&title=' . $title,
-				'icon'  => '',
-				'label' => 'Reddit',
-			],
-			'threads'  => [
-				'url'   => 'https://threads.net/intent/post?text=' . rawurlencode( $link_format ),
-				'icon'  => '',
-				'label' => 'Threads',
-			],
-			'linkedin' => [
-				'url'   => 'https://www.linkedin.com/sharing/share-offsite/?url=' . $url,
-				'icon'  => '',
-				'label' => 'LinkedIn',
-			],
-			'whatsapp' => [
-				'url'   => 'https://api.whatsapp.com/send?text=' . rawurlencode( $link_format ),
-				'icon'  => '',
-				'label' => 'WhatsApp',
-			],
-			'print'    => [
-				'url'   => 'javascript:window.print()',
-				'icon'  => 'dashicons-printer',
-				'label' => 'Print',
-			],
+		$social_channels = [
+			'facebook' => [ 'https://www.facebook.com/sharer.php?u=' . $url, 'Facebook' ],
+			'x'        => [ 'https://twitter.com/intent/tweet?text=' . rawurlencode( $link_fmt ), 'X' ],
+			'bluesky'  => [ 'https://bsky.app/intent/compose?text=' . rawurlencode( $link_fmt ), 'Bluesky' ],
+			'threads'  => [ 'https://threads.net/intent/post?text=' . rawurlencode( $link_fmt ), 'Threads' ],
+			'linkedin' => [ 'https://www.linkedin.com/sharing/share-offsite/?url=' . $url, 'LinkedIn' ],
+			'reddit'   => [ 'https://reddit.com/submit?url=' . $url . '&title=' . $title, 'Reddit' ],
+			'whatsapp' => [ 'https://api.whatsapp.com/send?text=' . rawurlencode( $link_fmt ), 'WhatsApp' ],
+		];
+		$standalone_channels = [
+			'email' => [ 'mailto:?body=' . rawurlencode( $link_fmt ), 'Email' ],
+			'print' => [ 'javascript:window.print()', 'Print' ],
 		];
 
-		foreach ( $channel_configs as $ch_key => $cfg ) {
-			if ( empty( $channels[ $ch_key ] ) ) {
+		$html = '<div class="newsroomos-share-bar ' . esc_attr( $shape_cls ) . '">';
+
+		foreach ( $standalone_channels as $ch => $cfg ) {
+			if ( empty( $channels[ $ch ] ) ) {
 				continue;
 			}
-			$target = ( 'email' === $ch_key || 'print' === $ch_key ) ? '' : ' target="_blank" rel="noopener"';
-			$icon   = ! empty( $cfg['icon'] ) ? '<span class="dashicons ' . $cfg['icon'] . '"></span> ' : '';
-			$channels_html .= sprintf(
-				'<a href="%s" class="newsroomos-share-btn newsroomos-share-%s"%s>%s<span class="newsroomos-share-label">%s</span></a> ',
-				esc_attr( $cfg['url'] ),
-				esc_attr( $ch_key ),
-				$target,
-				$icon,
-				esc_html( $cfg['label'] )
+			$html .= sprintf(
+				'<a href="%s" class="newsroomos-share-btn newsroomos-standalone">%s</a> ',
+				esc_url( $cfg[0] ),
+				esc_html( $cfg[1] )
 			);
 		}
 
-		// Google Preferred Source badge (rendered as a static button; the JS auto-enhances via the google-add-preferred-source-btn attribute).
-		if ( ! empty( $channels['google_preferred']['enabled'] ) ) {
-			$gp_theme = $channels['google_preferred']['theme'] ?? 'light';
-			$gp_lang  = $channels['google_preferred']['lang'] ?? '';
-			$gp_attrs = 'google-add-preferred-source-btn data-theme="' . esc_attr( $gp_theme ) . '"';
-			if ( ! empty( $gp_lang ) ) {
-				$gp_attrs .= ' data-lang="' . esc_attr( $gp_lang ) . '"';
+		if ( ! empty( $channels['google_preferred'] ) ) {
+			$gp_url = 'https://www.google.com/preferences/source?q=coloradosun.com';
+			$html  .= sprintf(
+				'<a href="%s" target="_blank" rel="noopener" class="newsroomos-share-btn newsroomos-standalone">%s</a> ',
+				esc_url( $gp_url ),
+				'Add Colorado Sun on Google'
+			);
+		}
+
+		$has_social  = false;
+		$social_html = '';
+		foreach ( $social_channels as $ch => $cfg ) {
+			if ( empty( $channels[ $ch ] ) ) {
+				continue;
 			}
-			$channels_html .= '<div class="newsroomos-share-btn newsroomos-share-google-preferred" ' . $gp_attrs . '></div> ';
+			$has_social   = true;
+			$social_html .= sprintf(
+				'<a href="%s" target="_blank" rel="noopener" class="newsroomos-share-btn newsroomos-social">%s</a> ',
+				esc_url( $cfg[0] ),
+				esc_html( $cfg[1] )
+			);
 		}
-
-		if ( empty( $channels_html ) ) {
-			return '';
-		}
-
-		return '<div class="newsroomos-element newsroomos-share-bar">' . $channels_html . '</div>';
-	}
-
-	// -------------------------------------------------------------------------
-	// FRONT-END: hide theme default elements, output custom CSS
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Filter post_thumbnail_html to suppress the theme's default featured image
-	 * output — Appearance handles it in the_content instead.
-	 *
-	 * @param string $html    The thumbnail HTML.
-	 * @param int    $post_id Post ID.
-	 * @return string
-	 */
-	public static function filter_post_thumbnail( $html, $post_id ) {
-		if ( ! is_singular() || ! in_the_loop() ) {
-			return $html;
-		}
-		// Hiding the default output — we re-render it ourselves via the_content filter.
-		return '';
-	}
-
-	/**
-	 * Output custom CSS in <head> to hide theme's default elements and apply per-element custom CSS.
-	 *
-	 * @return void
-	 */
-	public static function output_custom_css() {
-		if ( ! is_singular() ) {
-			return;
-		}
-		$settings = self::get_settings();
-		$css      = '';
-
-		// Hide default theme elements that we are overriding.
-		foreach ( $settings['header_elements'] as $el ) {
-			if ( empty( $el['enabled'] ) ) {
-				// If disabled, ALWAYS hide the default.
-				$css .= $el['css_selector'] . ' { display: none !important; }' . "\n";
+		if ( $has_social ) {
+			if ( 'grouped' === $app['grouping'] ) {
+				$html .= '<span class="newsroomos-share-cluster">' . $social_html . '</span> ';
 			} else {
-				// If enabled, our plugin renders the custom version; hide theme's default.
-				$css .= $el['css_selector'] . ' { display: none !important; }' . "\n";
-			}
-		}
-		// Always hide theme featured image — Appearance manages it.
-		$css .= '.post-thumbnail, .wp-post-image { display: none !important; }' . "\n";
-
-		// Also hide any "entry-header" wrapper from the theme that contains default elements.
-		$css .= '.entry-header { display: none !important; }' . "\n";
-
-		// Per-element custom CSS.
-		foreach ( $settings['header_elements'] as $el ) {
-			if ( ! empty( $el['custom_css'] ) ) {
-				$css .= $el['css_selector'] . ' { ' . $el['custom_css'] . ' }' . "\n";
+				$html .= $social_html;
 			}
 		}
 
-		if ( empty( $css ) ) {
-			return;
+		$html .= '</div>';
+
+		// Companion CSS.
+		$border_r = 'pill' === $app['shape'] ? '999px' : ( 'circle' === $app['shape'] ? '50%' : '4px' );
+		$btn_sel  = '.newsroomos-share-bar.newsroomos-shape-' . $app['shape'] . ' .newsroomos-share-btn';
+		$css      = $btn_sel . '{display:inline-flex;align-items:center;padding:6px 14px;margin:2px;border:1px solid #d0d0d0;border-radius:' . $border_r . ';background:#fff;color:#111;text-decoration:none;font-size:13px;line-height:1.4;transition:background .15s,border-color .15s}';
+		$css     .= $btn_sel . ':hover{background:#f5f5f5;border-color:#bbb;color:#111}';
+		$css     .= '.newsroomos-share-cluster{' . ( 'circle' === $app['shape'] ? '' : 'border:1px solid #d0d0d0;border-radius:' . $border_r . ';padding:2px 4px;' ) . 'display:inline-flex;align-items:center}';
+		$css     .= '.newsroomos-share-cluster .newsroomos-share-btn{border:none;background:transparent;margin:0 1px;padding:4px 8px}';
+		$css     .= '.newsroomos-share-cluster .newsroomos-share-btn:hover{background:#f0f0f0;border:none}';
+
+		if ( 'color' === $app['style'] ) {
+			$brands = [
+				'facebook' => '#1877F2',
+				'x'        => '#000',
+				'bluesky'  => '#0085FF',
+				'threads'  => '#000',
+				'linkedin' => '#0A66C2',
+				'reddit'   => '#FF4500',
+				'whatsapp' => '#25D366',
+				'email'    => '#666',
+				'print'    => '#666',
+			];
+			foreach ( $brands as $ch => $color ) {
+				$css .= '.newsroomos-share-btn.newsroomos-' . $ch . '{color:' . $color . ';border-color:' . $color . '}';
+				$css .= '.newsroomos-share-btn.newsroomos-' . $ch . ':hover{background:' . $color . ';color:#fff;border-color:' . $color . '}';
+			}
 		}
 
-		wp_register_style( 'newsroomos-appearance-css', false, [], '1.1.0' );
-		wp_enqueue_style( 'newsroomos-appearance-css' );
-		wp_add_inline_style( 'newsroomos-appearance-css', $css );
+		wp_add_inline_style( 'wp-block-library', $css );
+
+		return $html;
 	}
 }

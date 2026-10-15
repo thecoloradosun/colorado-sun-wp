@@ -180,17 +180,18 @@ class Module_Loader {
 	 */
 	public static function load_modules() {
 		$active_modules = get_option( self::MODULES_OPTION_NAME, [] );
-		if ( ! empty( $active_modules ) ) {
-			// Upgrade: ensure Appearance module is active (added in 1.1.0).
-			$appearance_path = __DIR__ . '/Modules/Appearance/module.php';
-			if ( ! in_array( $appearance_path, $active_modules, true ) && file_exists( $appearance_path ) ) {
-				$active_modules[] = $appearance_path;
-				update_option( self::MODULES_OPTION_NAME, $active_modules );
-			}
-			foreach ( $active_modules as $module ) {
-				if ( file_exists( $module ) ) {
-					require_once $module;
-				}
+		if ( ! is_array( $active_modules ) ) {
+			$active_modules = [];
+		}
+		// Upgrade: ensure Appearance module is active (added in 1.1.0).
+		$appearance_path = __DIR__ . '/Modules/Appearance/module.php';
+		if ( ! in_array( $appearance_path, $active_modules, true ) && file_exists( $appearance_path ) ) {
+			$active_modules[] = $appearance_path;
+			update_option( self::MODULES_OPTION_NAME, $active_modules );
+		}
+		foreach ( $active_modules as $module ) {
+			if ( file_exists( $module ) ) {
+				require_once $module;
 			}
 		}
 	}
