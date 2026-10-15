@@ -1,6 +1,6 @@
-name: Deploy plugin to Multiple Staging sites
+name: Deploy NewsroomOS plugin to Multiple Staging sites
 
-concurrency: custom-plugin-staging
+concurrency: newsroomos-staging
 
 permissions:
     contents: read
@@ -21,9 +21,9 @@ jobs:
         runs-on: ubuntu-latest
         needs: [Linting]
         env:
-          PLUGIN_DEST: /htdocs/wp-content/plugins/custom-plugin
-          PLUGIN_SOURCE: /htdocs/wp-content/uploads/custom-plugin__new
-          PLUGIN_BACKUP: /htdocs/wp-content/plugins/custom-plugin__bak
+          PLUGIN_DEST: /htdocs/wp-content/plugins/newsroomos
+          PLUGIN_SOURCE: /htdocs/wp-content/uploads/newsroomos__new
+          PLUGIN_BACKUP: /htdocs/wp-content/plugins/newsroomos__bak
         if: ${{ vars.STAGING_SITES != '' }}
         strategy:
             matrix:
@@ -66,7 +66,7 @@ jobs:
                   set sftp:connect-program 'ssh -o StrictHostKeyChecking=no'
                   set cmd:interactive no
                   cd /htdocs/wp-content/uploads
-                  mkdir -p custom-plugin__new
+                  mkdir -p newsroomos__new
                   quit
                 "
 
