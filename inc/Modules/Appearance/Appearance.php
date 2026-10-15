@@ -187,22 +187,20 @@ class Appearance {
 		add_action( 'admin_menu', [ __CLASS__, 'add_admin_menu' ] );
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_assets' ] );
-		add_filter( 'template_include', [ __CLASS__, 'override_template' ] );
+		add_filter( 'template_include', [ __CLASS__, 'override_template' ], PHP_INT_MAX );
+		add_filter( 'single_template', [ __CLASS__, 'override_template' ], PHP_INT_MAX );
 	}
 
 	/**
 	 * Override the single post template with the plugin's template file.
 	 *
-	 * Uses template_include instead of single_template so it catches
-	 * any template the theme might assign (one-column, full-width, etc.).
+	 * Uses template_include at max priority so it runs after theme/plugin overrides.
+	 * Falls back to single_template for redundancy.
 	 *
 	 * @param string $template Path to the theme's template.
 	 * @return string
 	 */
 	public static function override_template( $template ) {
-		if ( ! is_singular( 'post' ) ) {
-			return $template;
-		}
 		$plugin_template = dirname( __DIR__, 2 ) . '/templates/single-post.php';
 		if ( file_exists( $plugin_template ) ) {
 			return $plugin_template;

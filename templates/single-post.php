@@ -14,6 +14,18 @@ use NewsroomOS\Modules\Appearance\Appearance;
 
 get_header();
 
+if ( ! class_exists( 'NewsroomOS\Modules\Appearance\Appearance' ) ) {
+	// Fallback: try to load the class manually.
+	$appearance_file = dirname( __DIR__ ) . '/inc/Modules/Appearance/Appearance.php';
+	if ( file_exists( $appearance_file ) ) {
+		require_once $appearance_file;
+	}
+}
+?>
+
+<!-- NewsroomOS Appearance template active -->
+<?php
+
 $profile    = Appearance::get_active_profile();
 $current_ct = get_post_type();
 $is_page    = 'page' === $current_ct;
