@@ -187,25 +187,30 @@ class Appearance {
 		add_action( 'admin_menu', [ __CLASS__, 'add_admin_menu' ] );
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_assets' ] );
-		add_filter( 'template_include', [ __CLASS__, 'override_template' ], PHP_INT_MAX );
-		add_filter( 'single_template', [ __CLASS__, 'override_template' ], PHP_INT_MAX );
+		add_action( 'template_redirect', [ __CLASS__, 'override_template' ], PHP_INT_MAX );
 	}
 
 	/**
-	 * Override the single post template with the plugin's template file.
+	 * Override the single post template by short-circuiting template loading.
 	 *
-	 * Uses template_include at max priority so it runs after theme/plugin overrides.
-	 * Falls back to single_template for redundancy.
+	 * Uses template_redirect (instead of template_include filter) because
+	 * WordPress.com VIP / Newspack may override the template_include filter
+	 * after our registration. This approach directly includes our template
+	 * and exits, preventing any further template processing.
 	 *
-	 * @param string $template Path to the theme's template.
-	 * @return string
+	 * @return void
 	 */
-	public static function override_template( $template ) {
-		$plugin_template = dirname( __DIR__, 2 ) . '/templates/single-post.php';
-		if ( file_exists( $plugin_template ) ) {
-			return $plugin_template;
+	public static function override_template() {
+		if ( ! is_singular( 'post' ) ) {
+			return;
 		}
-		return $template;
+		$plugin_template = dirname( __DIR__, 2 ) . '/templates/single-post.php';
+		if ( ! file_exists( $plugin_template ) ) {
+			return;
+		}
+		// Load our template instead of the theme's.
+		load_template( $plugin_template, true );
+		exit;
 	}
 
 	/**
