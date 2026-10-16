@@ -10,12 +10,13 @@ namespace NewsroomOS\Modules\Appearance;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Share bar settings and rendering.
+ * Article template override and share bar configuration.
  *
- * Deliberately minimal: no template overrides, no header element manipulation.
- * The share bar renders after the article body via the_content filter (the
- * same pattern Jetpack sharing uses), so it works with any stock theme.
- * Article-layout customization is expected to move to a child theme.
+ * Uses template_redirect to supply a custom single-post template that gives
+ * you direct PHP control over the article topper element order.  The template
+ * file (templates/single-post.php) IS the modification surface — edit the
+ * file directly to rearrange headline, byline, featured image, share bar.
+ * The share bar itself is configured in the admin settings below.
  */
 class Appearance {
 
@@ -86,28 +87,27 @@ class Appearance {
 		add_action( 'admin_menu', [ __CLASS__, 'add_admin_menu' ] );
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_assets' ] );
-		add_filter( 'the_content', [ __CLASS__, 'append_share_bar' ], 19 );
+		add_action( 'template_redirect', [ __CLASS__, 'override_template' ], PHP_INT_MAX );
 	}
 
 	/**
-	 * Render the share bar after the article body.
+	 * Override the single post template with the plugin's template file.
 	 *
-	 * Priority 19 keeps it after most other content filters but before any
-	 * sharing-blocking filters at higher priorities. Only affects singular
-	 * views in the main query.
+	 * Fires at PHP_INT_MAX (last possible moment) so WP.com mu-plugins
+	 * cannot override it.  Only acts on singular views.
 	 *
-	 * @param string $content Post content.
-	 * @return string
+	 * @return void
 	 */
-	public static function append_share_bar( $content ) {
-		if ( ! is_singular() || ! in_the_loop() || ! is_main_query() ) {
-			return $content;
+	public static function override_template() {
+		if ( ! is_singular() ) {
+			return;
 		}
-		$settings = self::get_settings();
-		if ( empty( $settings['share_bar']['enabled'] ) ) {
-			return $content;
+		$plugin_template = dirname( __DIR__, 3 ) . '/templates/single-post.php';
+		if ( ! file_exists( $plugin_template ) ) {
+			return;
 		}
-		return $content . self::render_share_bar( get_the_ID() );
+		load_template( $plugin_template, true );
+		exit;
 	}
 
 	/**
@@ -184,7 +184,7 @@ class Appearance {
 		?>
 		<div class="wrap">
 			<h1>Appearance</h1>
-			<p class="description">Share bar configuration for article pages. The bar renders after the article body via a content filter — no template overrides. Article-layout restructuring will move to a child theme.</p>
+			<p class="description">Share bar configuration for article pages. The bar renders inside the custom single-post template (side-by-side with the headline, featured image, and byline). The template file at <code>templates/single-post.php</code> is your modification surface — edit that file to rearrange topper blocks; use this page for share-bar channel/style settings.</p>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'newsroomos-appearance' ); ?>
 
