@@ -224,13 +224,13 @@ class Appearance {
 			'singular'   => is_singular(),
 			'single'     => is_single(),
 			'post_type'  => get_post_type(),
-			'tpl_exists' => file_exists( dirname( __DIR__, 2 ) . '/templates/single-post.php' ),
-			'tpl_path'   => dirname( __DIR__, 2 ) . '/templates/single-post.php',
+			'tpl_exists' => file_exists( dirname( __DIR__, 3 ) . '/templates/single-post.php' ),
+			'tpl_path'   => dirname( __DIR__, 3 ) . '/templates/single-post.php',
 		];
 		if ( ! is_singular() ) {
 			return;
 		}
-		$plugin_template = dirname( __DIR__, 2 ) . '/templates/single-post.php';
+		$plugin_template = dirname( __DIR__, 3 ) . '/templates/single-post.php';
 		if ( ! file_exists( $plugin_template ) ) {
 			return;
 		}
