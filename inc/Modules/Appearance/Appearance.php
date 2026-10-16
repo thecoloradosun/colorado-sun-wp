@@ -10,13 +10,17 @@ namespace NewsroomOS\Modules\Appearance;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Article template override and share bar configuration.
+ * Share bar configuration for article pages.
  *
- * Uses template_redirect to supply a custom single-post template that gives
- * you direct PHP control over the article topper element order.  The template
- * file (templates/single-post.php) IS the modification surface — edit the
- * file directly to rearrange headline, byline, featured image, share bar.
- * The share bar itself is configured in the admin settings below.
+ * The share bar renders at the top of the article body via a the_content filter
+ * (priority 10, before Jetpack).  Article layout and theming stay 100 % in the
+ * Newspack-Scott theme — no template override, no drift.  The settings page
+ * controls share-bar channel/style options only.
+ *
+ * When you need to restructure the article topper (reorder headline, byline,
+ * featured image), THAT is when we add the template override with
+ * get_template_part() calls matching the parent theme's template parts.
+ * Until then, the theme's own template is authoritative.
  */
 class Appearance {
 
@@ -87,27 +91,29 @@ class Appearance {
 		add_action( 'admin_menu', [ __CLASS__, 'add_admin_menu' ] );
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_assets' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'override_template' ], PHP_INT_MAX );
+		add_filter( 'the_content', [ __CLASS__, 'prepend_share_bar' ], 10 );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_front_assets' ] );
 	}
 
 	/**
-	 * Override the single post template with the plugin's template file.
+	 * Prepend the share bar to the article content.
 	 *
-	 * Fires at PHP_INT_MAX (last possible moment) so WP.com mu-plugins
-	 * cannot override it.  Only acts on singular views.
+	 * Priority 10 fires before Jetpack sharing (19).  Only affects singular
+	 * views in the main query.  The share bar renders at the top of the
+	 * .entry-content area, inside the <article> tag.
 	 *
-	 * @return void
+	 * @param string $content Post content.
+	 * @return string
 	 */
-	public static function override_template() {
-		if ( ! is_singular() ) {
-			return;
+	public static function prepend_share_bar( $content ) {
+		if ( ! is_singular() || ! in_the_loop() || ! is_main_query() ) {
+			return $content;
 		}
-		$plugin_template = dirname( __DIR__, 3 ) . '/templates/single-post.php';
-		if ( ! file_exists( $plugin_template ) ) {
-			return;
+		$settings = self::get_settings();
+		if ( empty( $settings['share_bar']['enabled'] ) ) {
+			return $content;
 		}
-		load_template( $plugin_template, true );
-		exit;
+		return self::render_share_bar( get_the_ID() ) . $content;
 	}
 
 	/**
@@ -184,7 +190,7 @@ class Appearance {
 		?>
 		<div class="wrap">
 			<h1>Appearance</h1>
-			<p class="description">Share bar configuration for article pages. The bar renders inside the custom single-post template (side-by-side with the headline, featured image, and byline). The template file at <code>templates/single-post.php</code> is your modification surface — edit that file to rearrange topper blocks; use this page for share-bar channel/style settings.</p>
+			Share bar configuration for article pages. The bar renders at the top of the article body via a <code>the_content</code> filter — no template override is needed for share-bar-only changes. Article layout and theming stay 100 % in the Newspack-Scott theme. When you need to restructure topper element order (headline, byline, featured image), that's when we add a template override that delegates to the theme's template parts.
 			<form method="post" action="options.php">
 				<?php settings_fields( 'newsroomos-appearance' ); ?>
 
@@ -255,6 +261,52 @@ class Appearance {
 				]
 			)
 		);
+	}
+
+	/**
+	 * Enqueue share-bar companion CSS on the front end.
+	 *
+	 * Fires during <head> rendering, so the inline style is output in the
+	 * proper order relative to the theme stylesheet (newspack-theme-style).
+	 *
+	 * @return void
+	 */
+	public static function enqueue_front_assets() {
+		if ( ! is_singular() ) {
+			return;
+		}
+		$settings = self::get_settings();
+		if ( empty( $settings['share_bar']['enabled'] ) ) {
+			return;
+		}
+		$app      = $settings['share_bar']['appearance'];
+		$border_r = 'pill' === $app['shape'] ? '999px' : ( 'circle' === $app['shape'] ? '50%' : '4px' );
+		$btn_sel  = '.newsroomos-share-bar.newsroomos-shape-' . $app['shape'] . ' .newsroomos-share-btn';
+		$css      = $btn_sel . '{display:inline-flex;align-items:center;padding:6px 14px;margin:2px;border:1px solid #d0d0d0;border-radius:' . $border_r . ';background:#fff;color:#111;text-decoration:none;font-size:13px;line-height:1.4;transition:background .15s,border-color .15s}';
+		$css     .= $btn_sel . ':hover{background:#f5f5f5;border-color:#bbb;color:#111}';
+		$css     .= '.newsroomos-share-cluster{' . ( 'circle' === $app['shape'] ? '' : 'border:1px solid #d0d0d0;border-radius:' . $border_r . ';padding:2px 4px;' ) . 'display:inline-flex;align-items:center}';
+		$css     .= '.newsroomos-share-cluster .newsroomos-share-btn{border:none;background:transparent;margin:0 1px;padding:4px 8px}';
+		$css     .= '.newsroomos-share-cluster .newsroomos-share-btn:hover{background:#f0f0f0;border:none}';
+
+		if ( 'color' === $app['style'] ) {
+			$brands = [
+				'facebook' => '#1877F2',
+				'x'        => '#000',
+				'bluesky'  => '#0085FF',
+				'threads'  => '#000',
+				'linkedin' => '#0A66C2',
+				'reddit'   => '#FF4500',
+				'whatsapp' => '#25D366',
+				'email'    => '#666',
+				'print'    => '#666',
+			];
+			foreach ( $brands as $ch => $color ) {
+				$css .= '.newsroomos-share-btn.newsroomos-' . $ch . '{color:' . $color . ';border-color:' . $color . '}';
+				$css .= '.newsroomos-share-btn.newsroomos-' . $ch . ':hover{background:' . $color . ';color:#fff;border-color:' . $color . '}';
+			}
+		}
+
+		wp_add_inline_style( 'newspack-theme-style', $css );
 	}
 
 	/**
@@ -337,35 +389,6 @@ class Appearance {
 		}
 
 		$html .= '</div>';
-
-		// Companion CSS.
-		$border_r = 'pill' === $app['shape'] ? '999px' : ( 'circle' === $app['shape'] ? '50%' : '4px' );
-		$btn_sel  = '.newsroomos-share-bar.newsroomos-shape-' . $app['shape'] . ' .newsroomos-share-btn';
-		$css      = $btn_sel . '{display:inline-flex;align-items:center;padding:6px 14px;margin:2px;border:1px solid #d0d0d0;border-radius:' . $border_r . ';background:#fff;color:#111;text-decoration:none;font-size:13px;line-height:1.4;transition:background .15s,border-color .15s}';
-		$css     .= $btn_sel . ':hover{background:#f5f5f5;border-color:#bbb;color:#111}';
-		$css     .= '.newsroomos-share-cluster{' . ( 'circle' === $app['shape'] ? '' : 'border:1px solid #d0d0d0;border-radius:' . $border_r . ';padding:2px 4px;' ) . 'display:inline-flex;align-items:center}';
-		$css     .= '.newsroomos-share-cluster .newsroomos-share-btn{border:none;background:transparent;margin:0 1px;padding:4px 8px}';
-		$css     .= '.newsroomos-share-cluster .newsroomos-share-btn:hover{background:#f0f0f0;border:none}';
-
-		if ( 'color' === $app['style'] ) {
-			$brands = [
-				'facebook' => '#1877F2',
-				'x'        => '#000',
-				'bluesky'  => '#0085FF',
-				'threads'  => '#000',
-				'linkedin' => '#0A66C2',
-				'reddit'   => '#FF4500',
-				'whatsapp' => '#25D366',
-				'email'    => '#666',
-				'print'    => '#666',
-			];
-			foreach ( $brands as $ch => $color ) {
-				$css .= '.newsroomos-share-btn.newsroomos-' . $ch . '{color:' . $color . ';border-color:' . $color . '}';
-				$css .= '.newsroomos-share-btn.newsroomos-' . $ch . ':hover{background:' . $color . ';color:#fff;border-color:' . $color . '}';
-			}
-		}
-
-		wp_add_inline_style( 'wp-block-library', $css );
 
 		return $html;
 	}
