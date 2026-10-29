@@ -18,139 +18,163 @@
  * Custom events use event_type=2, don't inflate pageviews.
  */
 
-(function () {
-  'use strict';
+( function () {
+	'use strict';
 
-  /* ── 1. Wait for window.umami (retry 500ms × 5, then silently give up) ── */
-  var attempts = 0;
-  var MAX_ATTEMPTS = 5;
-  var RETRY_DELAY = 500;
+	/* ── 1. Wait for window.umami (retry 500ms × 5, then silently give up) ── */
+	let attempts = 0;
+	const MAX_ATTEMPTS = 5;
+	const RETRY_DELAY = 500;
 
-  /* ── 2. Read & parse coloradosun_member_data cookie ──────────────────── */
-  function getCookie(name) {
-    var encoded = encodeURIComponent(name).replace(/[-.+*]/g, '\\$&');
-    var match = document.cookie.match(new RegExp('(?:^|; )' + encoded + '=([^;]*)'));
-    return match ? match[1] : null;
-  }
+	/* ── 2. Read & parse coloradosun_member_data cookie ──────────────────── */
+	function getCookie( name ) {
+		const encoded = encodeURIComponent( name ).replace( /[-.+*]/g, '\\$&' );
+		const match = document.cookie.match(
+			new RegExp( '(?:^|; )' + encoded + '=([^;]*)' )
+		);
+		return match ? match[ 1 ] : null;
+	}
 
-  function parseCookieData() {
-    var raw = getCookie('coloradosun_member_data');
-    if (!raw) return null;
-    try {
-      return JSON.parse(decodeURIComponent(raw));
-    } catch (e) {
-      return null;
-    }
-  }
+	function parseCookieData() {
+		const raw = getCookie( 'coloradosun_member_data' );
+		if ( ! raw ) {
+			return null;
+		}
+		try {
+			return JSON.parse( decodeURIComponent( raw ) );
+		} catch ( e ) {
+			return null;
+		}
+	}
 
-  /* ── 3. Identify call ────────────────────────────────────────────────── */
-  function doIdentify() {
-    var data = parseCookieData();
-    if (!data) return;
+	/* ── 3. Identify call ────────────────────────────────────────────────── */
+	function doIdentify() {
+		const data = parseCookieData();
+		if ( ! data ) {
+			return;
+		}
 
-    /* Count active subscriptions (s.subscribed === true) */
-    var subs = 0;
-    if (typeof data.subscriptions === 'object' && data.subscriptions !== null) {
-      var keys = Object.keys(data.subscriptions);
-      for (var i = 0; i < keys.length; i++) {
-        var s = data.subscriptions[keys[i]];
-        if (s && s.subscribed === true) subs++;
-      }
-    }
+		/* Count active subscriptions (s.subscribed === true) */
+		let subs = 0;
+		if (
+			typeof data.subscriptions === 'object' &&
+			data.subscriptions !== null
+		) {
+			const keys = Object.keys( data.subscriptions );
+			for ( let i = 0; i < keys.length; i++ ) {
+				const s = data.subscriptions[ keys[ i ] ];
+				if ( s && s.subscribed === true ) {
+					subs++;
+				}
+			}
+		}
 
-    try {
-      window.umami.identify({
-        member: data.member === true || data.member === 'true',
-        tier: typeof data.tier === 'string' ? data.tier : 'none',
-        subscriptions: subs,
-        source: 'coloradosun.com'
-      });
-    } catch (e) {
-      /* silent */
-    }
-  }
+		try {
+			window.umami.identify( {
+				member: data.member === true || data.member === 'true',
+				tier: typeof data.tier === 'string' ? data.tier : 'none',
+				subscriptions: subs,
+				source: 'coloradosun.com',
+			} );
+		} catch ( e ) {
+			/* silent */
+		}
+	}
 
-  /* ── 4. Scroll-depth events (25/50/75/100%, once per pageview) ────────── */
-  var SCROLL_MILESTONES = [25, 50, 75, 100];
-  var scrollFired = {};
-  var scrollListenerAttached = false;
+	/* ── 4. Scroll-depth events (25/50/75/100%, once per pageview) ────────── */
+	const SCROLL_MILESTONES = [ 25, 50, 75, 100 ];
+	const scrollFired = {};
+	let scrollListenerAttached = false;
 
-  function getScrollTop() {
-    return window.pageYOffset !== undefined
-      ? window.pageYOffset
-      : (document.documentElement.scrollTop || document.body.scrollTop || 0);
-  }
+	function getScrollTop() {
+		return window.pageYOffset !== undefined
+			? window.pageYOffset
+			: document.documentElement.scrollTop ||
+				document.body.scrollTop ||
+				0;
+	}
 
-  function getScrollableHeight() {
-    return document.documentElement.scrollHeight - document.documentElement.clientHeight;
-  }
+	function getScrollableHeight() {
+		return (
+			document.documentElement.scrollHeight -
+			document.documentElement.clientHeight
+		);
+	}
 
-  function checkScroll() {
-    var scrollTop = getScrollTop();
-    var scrollable = getScrollableHeight();
+	function checkScroll() {
+		const scrollTop = getScrollTop();
+		const scrollable = getScrollableHeight();
 
-    /* Edge case: no scrollable content — fire 100% once */
-    if (scrollable <= 0) {
-      if (!scrollFired[100]) {
-        scrollFired[100] = true;
-        fireTrack('scroll', { depth: 100 });
-      }
-      return;
-    }
+		/* Edge case: no scrollable content — fire 100% once */
+		if ( scrollable <= 0 ) {
+			if ( ! scrollFired[ 100 ] ) {
+				scrollFired[ 100 ] = true;
+				fireTrack( 'scroll', { depth: 100 } );
+			}
+			return;
+		}
 
-    var pct = Math.min(100, Math.round((scrollTop / scrollable) * 100));
-    for (var i = 0; i < SCROLL_MILESTONES.length; i++) {
-      var m = SCROLL_MILESTONES[i];
-      if (pct >= m && !scrollFired[m]) {
-        scrollFired[m] = true;
-        fireTrack('scroll', { depth: m });
-      }
-    }
-  }
+		const pct = Math.min(
+			100,
+			Math.round( ( scrollTop / scrollable ) * 100 )
+		);
+		for ( let i = 0; i < SCROLL_MILESTONES.length; i++ ) {
+			const m = SCROLL_MILESTONES[ i ];
+			if ( pct >= m && ! scrollFired[ m ] ) {
+				scrollFired[ m ] = true;
+				fireTrack( 'scroll', { depth: m } );
+			}
+		}
+	}
 
-  /* ── 5. Time-on-page (pagehide/beforeunload ONLY — no setInterval) ──── */
-  var pageStart = Date.now();
+	/* ── 5. Time-on-page (pagehide/beforeunload ONLY — no setInterval) ──── */
+	const pageStart = Date.now();
 
-  function reportTimeOnPage() {
-    var seconds = Math.floor((Date.now() - pageStart) / 1000);
-    fireTrack('time-on-page', { seconds: seconds });
-  }
+	function reportTimeOnPage() {
+		const seconds = Math.floor( ( Date.now() - pageStart ) / 1000 );
+		fireTrack( 'time-on-page', { seconds: seconds } );
+	}
 
-  /* ── 6. Safe tracking wrapper — checks umami exists, catches errors ──── */
-  function fireTrack(event, data) {
-    if (typeof window.umami === 'undefined' || typeof window.umami.track !== 'function') return;
-    try {
-      window.umami.track(event, data);
-    } catch (e) {
-      /* silent — never throw from analytics */
-    }
-  }
+	/* ── 6. Safe tracking wrapper — checks umami exists, catches errors ──── */
+	function fireTrack( event, data ) {
+		if (
+			typeof window.umami === 'undefined' ||
+			typeof window.umami.track !== 'function'
+		) {
+			return;
+		}
+		try {
+			window.umami.track( event, data );
+		} catch ( e ) {
+			/* silent — never throw from analytics */
+		}
+	}
 
-  /* ── 7. Init — called immediately, retries up to MAX_ATTEMPTS ──────────── */
-  function tryInit() {
-    if (typeof window.umami !== 'undefined') {
-      doIdentify();
-      checkScroll();
+	/* ── 7. Init — called immediately, retries up to MAX_ATTEMPTS ──────────── */
+	function tryInit() {
+		if ( typeof window.umami !== 'undefined' ) {
+			doIdentify();
+			checkScroll();
 
-      /* Attach scroll listener once (no orphaned intervals) */
-      if (!scrollListenerAttached) {
-        scrollListenerAttached = true;
-        window.addEventListener('scroll', checkScroll);
-      }
+			/* Attach scroll listener once (no orphaned intervals) */
+			if ( ! scrollListenerAttached ) {
+				scrollListenerAttached = true;
+				window.addEventListener( 'scroll', checkScroll );
+			}
 
-      /* Time-on-page: ONLY on pagehide/beforeunload — no setInterval */
-      window.addEventListener('pagehide', reportTimeOnPage);
-      window.addEventListener('beforeunload', reportTimeOnPage);
+			/* Time-on-page: ONLY on pagehide/beforeunload — no setInterval */
+			window.addEventListener( 'pagehide', reportTimeOnPage );
+			window.addEventListener( 'beforeunload', reportTimeOnPage );
 
-      return;
-    }
+			return;
+		}
 
-    attempts++;
-    if (attempts < MAX_ATTEMPTS) {
-      setTimeout(tryInit, RETRY_DELAY);
-    }
-    /* else: silently give up — umami never loaded */
-  }
+		attempts++;
+		if ( attempts < MAX_ATTEMPTS ) {
+			setTimeout( tryInit, RETRY_DELAY );
+		}
+		/* else: silently give up — umami never loaded */
+	}
 
-  tryInit();
-})();
+	tryInit();
+} )();
