@@ -21,19 +21,22 @@ The `coloradosun_member_data` cookie is set on `.coloradosun.com`. This script *
 
 1. In the WordPress admin, go to **Perfmatters → Assets → Footer**.
 2. Add a new **Custom JavaScript** asset.
-3. Paste the contents of `assets/js/umami-cookie-sync.min.js`.
+3. Set **Method** to **URL** (NOT inline) and enter:
+   ```
+   /wp-content/plugins/newsroomos/assets/js/umami-cookie-sync.min.js
+   ```
 4. Enable **Defer**.
 5. Set the **Location** to **Footer**.
 6. Ensure this script's position in the list is **after** the sun-analytics tracker asset.
 
-> The script is an IIFE — it runs on `<script>` load and waits for `window.umami` to become available. Defer is safe.
+> The script is an IIFE — it runs on load and waits for `window.umami` to become available. Defer is safe. Loading by URL is cleaner and avoids dumping the full script text into the Perfmatters editor.
 
 ### Via theme template
 
 Insert before the closing `</body>` tag, after the sun-analytics tracker:
 
 ```html
-<script defer src="/assets/js/umami-cookie-sync.min.js"></script>
+<script defer src="/wp-content/plugins/newsroomos/assets/js/umami-cookie-sync.min.js"></script>
 ```
 
 ## What It Does
