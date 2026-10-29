@@ -87,11 +87,14 @@
 	let scrollListenerAttached = false;
 
 	function getScrollTop() {
-		return window.pageYOffset !== undefined
-			? window.pageYOffset
-			: document.documentElement.scrollTop ||
-				document.body.scrollTop ||
-				0;
+		if ( window.pageYOffset !== undefined ) {
+			return window.pageYOffset;
+		}
+		return (
+			document.documentElement.scrollTop ||
+			document.body.scrollTop ||
+			0
+		);
 	}
 
 	function getScrollableHeight() {
@@ -102,10 +105,8 @@
 	}
 
 	function checkScroll() {
-		const scrollTop = getScrollTop();
-		const scrollable = getScrollableHeight();
-
 		/* Edge case: no scrollable content — fire 100% once */
+		const scrollable = getScrollableHeight();
 		if ( scrollable <= 0 ) {
 			if ( ! scrollFired[ 100 ] ) {
 				scrollFired[ 100 ] = true;
@@ -114,6 +115,7 @@
 			return;
 		}
 
+		const scrollTop = getScrollTop();
 		const pct = Math.min(
 			100,
 			Math.round( ( scrollTop / scrollable ) * 100 )
@@ -132,7 +134,7 @@
 
 	function reportTimeOnPage() {
 		const seconds = Math.floor( ( Date.now() - pageStart ) / 1000 );
-		fireTrack( 'time-on-page', { seconds: seconds } );
+		fireTrack( 'time-on-page', { seconds } );
 	}
 
 	/* ── 6. Safe tracking wrapper — checks umami exists, catches errors ──── */
